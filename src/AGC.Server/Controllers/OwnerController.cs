@@ -1,3 +1,4 @@
+using AGC.Server.Configuration;
 using AGC.Server.Data;
 using AGC.Server.Entities;
 using AGC.Server.Hubs;
@@ -19,8 +20,13 @@ public sealed class OwnerController(
     AppDbContext db,
     GameFileStorage storage,
     MaintenanceState maintenance,
-    IHubContext<MaintenanceHub> hub) : ControllerBase
+    IHubContext<MaintenanceHub> hub,
+    AppOptions options) : ControllerBase
 {
+    private static readonly ApiErrorDto StripeNotConfiguredError =
+        new("Stripe isn't configured yet — payouts aren't available.");
+
+
     private static readonly TimeSpan PublishMaintenanceWindow = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan DeleteMaintenanceWindow = TimeSpan.FromMinutes(2);
 
@@ -181,6 +187,11 @@ public sealed class OwnerController(
     [HttpGet("balance/available")]
     public async Task<ActionResult<AvailableToWithdrawDto>> GetAvailableToWithdraw(CancellationToken ct)
     {
+        if (!options.IsStripeConfigured)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, StripeNotConfiguredError);
+        }
+
         var (amount, currency) = await GetPrimaryAvailableBalanceAsync(ct);
         return Ok(new AvailableToWithdrawDto(amount, currency));
     }
@@ -188,6 +199,11 @@ public sealed class OwnerController(
     [HttpPost("payouts")]
     public async Task<ActionResult<LedgerEntryDto>> CreatePayout(CreatePayoutRequestDto request, CancellationToken ct)
     {
+        if (!options.IsStripeConfigured)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, StripeNotConfiguredError);
+        }
+
         if (request.Amount <= 0)
         {
             return BadRequest(new ApiErrorDto("Enter an amount greater than 0."));

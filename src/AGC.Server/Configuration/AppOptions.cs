@@ -13,9 +13,18 @@ public sealed class AppOptions
 
     public required string ResendFromEmail { get; init; }
 
-    public required string StripeSecretKey { get; init; }
+    /// <summary>
+    /// Null/empty (along with <see cref="StripeWebhookSecret"/>) means: no paid-game
+    /// features. Checkout and payouts are unavailable rather than the server refusing
+    /// to start — publishing/playing free games never needs Stripe at all.
+    /// </summary>
+    public string? StripeSecretKey { get; init; }
 
-    public required string StripeWebhookSecret { get; init; }
+    public string? StripeWebhookSecret { get; init; }
+
+    /// <summary>Both keys must be present — a checkout session with no working webhook would leave purchases stuck Pending forever.</summary>
+    public bool IsStripeConfigured =>
+        !string.IsNullOrEmpty(StripeSecretKey) && !string.IsNullOrEmpty(StripeWebhookSecret);
 
     /// <summary>Npgsql connection string for the Postgres database (e.g. a Neon connection string).</summary>
     public required string DatabaseConnectionString { get; init; }
@@ -47,8 +56,8 @@ public sealed class AppOptions
             JwtSigningKey = Require("JWT_SIGNING_KEY"),
             ResendApiKey = configuration["RESEND_API_KEY"],
             ResendFromEmail = Require("RESEND_FROM_EMAIL"),
-            StripeSecretKey = Require("STRIPE_SECRET_KEY"),
-            StripeWebhookSecret = Require("STRIPE_WEBHOOK_SECRET"),
+            StripeSecretKey = configuration["STRIPE_SECRET_KEY"],
+            StripeWebhookSecret = configuration["STRIPE_WEBHOOK_SECRET"],
             DatabaseConnectionString = Require("DATABASE_URL"),
             SupabaseUrl = Require("SUPABASE_URL"),
             SupabaseServiceRoleKey = Require("SUPABASE_SERVICE_ROLE_KEY"),

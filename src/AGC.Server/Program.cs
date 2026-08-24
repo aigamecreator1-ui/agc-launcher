@@ -28,7 +28,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var appOptions = AppOptions.FromConfiguration(builder.Configuration);
 builder.Services.AddSingleton(appOptions);
-Stripe.StripeConfiguration.ApiKey = appOptions.StripeSecretKey;
+if (appOptions.IsStripeConfigured)
+{
+    Stripe.StripeConfiguration.ApiKey = appOptions.StripeSecretKey;
+}
 
 builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(appOptions.DatabaseConnectionString));
 

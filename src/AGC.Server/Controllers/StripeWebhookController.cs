@@ -17,13 +17,18 @@ public sealed class StripeWebhookController(AppDbContext db, AppOptions options,
     [HttpPost]
     public async Task<IActionResult> Handle(CancellationToken ct)
     {
+        if (!options.IsStripeConfigured)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable);
+        }
+
         var json = await new StreamReader(Request.Body).ReadToEndAsync(ct);
 
         Event stripeEvent;
         try
         {
             stripeEvent = EventUtility.ConstructEvent(
-                json, Request.Headers["Stripe-Signature"], options.StripeWebhookSecret);
+                json, Request.Headers["Stripe-Signature"], options.StripeWebhookSecret!); // non-null: IsStripeConfigured checked above
         }
         catch (StripeException ex)
         {

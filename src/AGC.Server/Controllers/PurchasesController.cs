@@ -1,3 +1,4 @@
+using AGC.Server.Configuration;
 using AGC.Server.Data;
 using AGC.Server.Entities;
 using AGC.Server.Extensions;
@@ -12,7 +13,7 @@ namespace AGC.Server.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/purchases")]
-public sealed class PurchasesController(AppDbContext db) : ControllerBase
+public sealed class PurchasesController(AppDbContext db, AppOptions options) : ControllerBase
 {
     [HttpPost("{gameId}/checkout-session")]
     public async Task<ActionResult<CreateCheckoutSessionResponseDto>> CreateCheckoutSession(string gameId, CancellationToken ct)
@@ -33,6 +34,12 @@ public sealed class PurchasesController(AppDbContext db) : ControllerBase
         if (alreadyOwned)
         {
             return BadRequest(new ApiErrorDto("You already own this game."));
+        }
+
+        if (!options.IsStripeConfigured)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                new ApiErrorDto("Purchases aren't available yet — this store isn't accepting payments right now."));
         }
 
         var baseUrl = $"{Request.Scheme}://{Request.Host}";
