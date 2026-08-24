@@ -17,6 +17,21 @@ public sealed class AppOptions
 
     public required string StripeWebhookSecret { get; init; }
 
+    /// <summary>Npgsql connection string for the Postgres database (e.g. a Neon connection string).</summary>
+    public required string DatabaseConnectionString { get; init; }
+
+    /// <summary>Project URL for Supabase Storage, e.g. https://xxxxx.supabase.co</summary>
+    public required string SupabaseUrl { get; init; }
+
+    /// <summary>
+    /// Supabase's service_role key — bypasses Row Level Security. Server-only: never
+    /// sent to or embedded in the desktop client, same rule as the Stripe secret key.
+    /// </summary>
+    public required string SupabaseServiceRoleKey { get; init; }
+
+    /// <summary>Storage bucket that holds uploaded game builds and thumbnails.</summary>
+    public required string SupabaseBucket { get; init; }
+
     public static AppOptions FromConfiguration(IConfiguration configuration)
     {
         string Require(string key) =>
@@ -34,6 +49,10 @@ public sealed class AppOptions
             ResendFromEmail = Require("RESEND_FROM_EMAIL"),
             StripeSecretKey = Require("STRIPE_SECRET_KEY"),
             StripeWebhookSecret = Require("STRIPE_WEBHOOK_SECRET"),
+            DatabaseConnectionString = Require("DATABASE_URL"),
+            SupabaseUrl = Require("SUPABASE_URL"),
+            SupabaseServiceRoleKey = Require("SUPABASE_SERVICE_ROLE_KEY"),
+            SupabaseBucket = Require("SUPABASE_BUCKET"),
         };
     }
 }

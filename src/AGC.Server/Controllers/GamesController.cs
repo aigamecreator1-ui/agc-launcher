@@ -77,8 +77,9 @@ public sealed class GamesController(AppDbContext db, GameFileStorage storage) : 
     }
 
     /// <summary>
-    /// Streams the real build file the Publish flow uploaded. Range-enabled so a client
-    /// can resume a partial download instead of restarting from byte zero.
+    /// Streams the real build file the Publish flow uploaded, proxied through this
+    /// server from Supabase Storage (the bucket is private — this is what actually
+    /// enforces the ownership check below, not just the DB row).
     /// </summary>
     [HttpGet("{id}/download")]
     public async Task<IActionResult> Download(string id, CancellationToken ct)
@@ -96,13 +97,22 @@ public sealed class GamesController(AppDbContext db, GameFileStorage storage) : 
             return StatusCode(StatusCodes.Status403Forbidden, new ApiErrorDto("You don't own this game."));
         }
 
-        var path = storage.GetFullPath(game.BuildPath);
-        if (!System.IO.File.Exists(path))
+        var file = await storage.OpenReadAsync(game.BuildPath, ct);
+        if (file is null)
         {
             return NotFound(new ApiErrorDto("The build file is missing on the server."));
         }
 
-        return PhysicalFile(path, "application/octet-stream", Path.GetFileName(game.BuildPath), enableRangeProcessing: true);
+        var (content, length, _) = file.Value;
+        if (length is not null)
+        {
+            // The proxied stream isn't seekable, so ASP.NET Core can't infer this on its
+            // own — set it explicitly so the client gets real progress instead of falling
+            // back to the build size recorded at publish time.
+            Response.ContentLength = length;
+        }
+
+        return File(content, "application/octet-stream", Path.GetFileName(game.BuildPath));
     }
 
     [HttpGet("{id}/thumbnail")]
@@ -115,21 +125,14 @@ public sealed class GamesController(AppDbContext db, GameFileStorage storage) : 
             return NotFound();
         }
 
-        var path = storage.GetFullPath(game.ThumbnailPath);
-        if (!System.IO.File.Exists(path))
+        var file = await storage.OpenReadAsync(game.ThumbnailPath, ct);
+        if (file is null)
         {
             return NotFound();
         }
 
-        var contentType = Path.GetExtension(path).ToLowerInvariant() switch
-        {
-            ".png" => "image/png",
-            ".jpg" or ".jpeg" => "image/jpeg",
-            ".webp" => "image/webp",
-            _ => "application/octet-stream",
-        };
-
-        return PhysicalFile(path, contentType);
+        var (content, _, contentType) = file.Value;
+        return File(content, contentType);
     }
 
     private static GameDto ToDto(Game g, bool isOwned) => new(

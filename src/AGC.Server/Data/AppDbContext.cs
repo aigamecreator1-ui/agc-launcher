@@ -51,5 +51,20 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(p => p.Amount).HasColumnType("decimal(12,2)");
             entity.HasIndex(p => p.StripePayoutId).IsUnique();
         });
+
+        // Every DateTime/DateTime? in this model is a Kind=Utc value (DateTime.UtcNow).
+        // Npgsql's default mapping is "timestamp without time zone", which throws at
+        // runtime on a Kind=Utc value — SQLite was silently lenient about this, Postgres
+        // is not. Map every one to "timestamptz" instead, which accepts Kind=Utc directly.
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                {
+                    property.SetColumnType("timestamptz");
+                }
+            }
+        }
     }
 }

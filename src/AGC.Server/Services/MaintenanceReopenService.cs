@@ -68,12 +68,14 @@ public sealed class MaintenanceReopenService(
             return;
         }
 
+        var filePaths = new[] { game.BuildPath, game.ThumbnailPath };
+
         db.Ownerships.RemoveRange(await db.Ownerships.Where(o => o.GameId == gameId).ToListAsync(ct));
         db.Transactions.RemoveRange(await db.Transactions.Where(t => t.GameId == gameId).ToListAsync(ct));
         db.Games.Remove(game);
         await db.SaveChangesAsync(ct);
 
-        storage.DeleteGameFiles(gameId);
+        await storage.DeleteAsync(filePaths, ct);
         logger.LogInformation("Game {GameId} was deleted", gameId);
     }
 }

@@ -19,15 +19,23 @@ var appOptions = AppOptions.FromConfiguration(builder.Configuration);
 builder.Services.AddSingleton(appOptions);
 Stripe.StripeConfiguration.ApiKey = appOptions.StripeSecretKey;
 
-// Defaults to a file next to the dev build; a real deployment sets SQLITE_DB_PATH to
-// somewhere on persistent disk (e.g. a mounted volume) so data survives a redeploy.
-var dbPath = builder.Configuration["SQLITE_DB_PATH"] ?? "agc.db";
-builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite($"Data Source={dbPath}"));
+builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(appOptions.DatabaseConnectionString));
 
 builder.Services.AddSingleton<PasswordHasher<User>>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<OwnerCodeAttemptLimiter>();
-builder.Services.AddSingleton<GameFileStorage>();
+
+// Game builds/thumbnails live in Supabase Storage, not local disk — this app has no
+// persistent filesystem of its own on a stateless host. The service_role key is a
+// server-side secret; it's never sent to the desktop client.
+builder.Services.AddHttpClient<GameFileStorage>(client =>
+{
+    client.BaseAddress = new Uri(appOptions.SupabaseUrl);
+    client.DefaultRequestHeaders.Add("apikey", appOptions.SupabaseServiceRoleKey);
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", appOptions.SupabaseServiceRoleKey);
+});
+
 builder.Services.AddSingleton<MaintenanceState>();
 builder.Services.AddHostedService<MaintenanceReopenService>();
 

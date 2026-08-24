@@ -1,42 +1,90 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using AGC.Server.Configuration;
+
 namespace AGC.Server.Services;
 
 /// <summary>
-/// Local-disk storage for uploaded builds and thumbnails, keyed by game id. A real
-/// production deployment would swap this for object storage (S3/Azure Blob/etc.) —
-/// that's a deployment concern, not something this interface needs to change for.
+/// Uploaded game builds and thumbnails, stored in a Supabase Storage bucket rather
+/// than local disk — this app runs on a stateless host with no persistent filesystem
+/// of its own. The bucket is private; every read goes through this server (using the
+/// service_role key) rather than a public bucket URL, so paid-game entitlement checks
+/// in GamesController still gate access to the actual file bytes, not just the DB row.
 /// </summary>
-public sealed class GameFileStorage
+public sealed class GameFileStorage(HttpClient http, AppOptions options)
 {
-    /// <summary>
-    /// Defaults to a path relative to the dev build output; a real deployment sets
-    /// STORAGE_ROOT to somewhere on persistent disk (e.g. a mounted volume) so
-    /// uploaded builds survive a redeploy.
-    /// </summary>
-    private static readonly string RootPath = Environment.GetEnvironmentVariable("STORAGE_ROOT")
-        ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Storage");
-
     public async Task<string> SaveAsync(string gameId, string fileName, Stream content, CancellationToken ct)
     {
-        var directory = Path.Combine(RootPath, gameId);
-        Directory.CreateDirectory(directory);
+        var relativePath = $"{gameId}/{fileName}";
 
-        var relativePath = Path.Combine(gameId, fileName);
-        var fullPath = Path.Combine(RootPath, relativePath);
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"storage/v1/object/{options.SupabaseBucket}/{relativePath}")
+        {
+            Content = new StreamContent(content),
+        };
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue(ContentTypeFor(fileName));
+        request.Headers.Add("x-upsert", "true");
 
-        await using var fileStream = File.Create(fullPath);
-        await content.CopyToAsync(fileStream, ct);
+        using var response = await http.SendAsync(request, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(ct);
+            throw new InvalidOperationException($"Supabase Storage upload failed ({(int)response.StatusCode}): {body}");
+        }
 
         return relativePath;
     }
 
-    public string GetFullPath(string relativePath) => Path.Combine(RootPath, relativePath);
-
-    public void DeleteGameFiles(string gameId)
+    /// <summary>Null if the object doesn't exist. Caller is responsible for disposing the returned stream.</summary>
+    public async Task<(Stream Content, long? Length, string ContentType)?> OpenReadAsync(string relativePath, CancellationToken ct)
     {
-        var directory = Path.Combine(RootPath, gameId);
-        if (Directory.Exists(directory))
+        var response = await http.GetAsync(
+            $"storage/v1/object/{options.SupabaseBucket}/{relativePath}", HttpCompletionOption.ResponseHeadersRead, ct);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            Directory.Delete(directory, recursive: true);
+            response.Dispose();
+            return null;
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(ct);
+            response.Dispose();
+            throw new InvalidOperationException($"Supabase Storage download failed ({(int)response.StatusCode}): {body}");
+        }
+
+        var length = response.Content.Headers.ContentLength;
+        var contentType = response.Content.Headers.ContentType?.MediaType ?? ContentTypeFor(relativePath);
+        var stream = await response.Content.ReadAsStreamAsync(ct);
+        return (stream, length, contentType);
+    }
+
+    /// <summary>Deletes exactly the given object paths (typically a game's build + thumbnail). Missing objects are ignored.</summary>
+    public async Task DeleteAsync(IReadOnlyList<string> relativePaths, CancellationToken ct)
+    {
+        if (relativePaths.Count == 0)
+        {
+            return;
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Delete, $"storage/v1/object/{options.SupabaseBucket}")
+        {
+            Content = JsonContent.Create(new { prefixes = relativePaths }),
+        };
+
+        using var response = await http.SendAsync(request, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(ct);
+            throw new InvalidOperationException($"Supabase Storage delete failed ({(int)response.StatusCode}): {body}");
         }
     }
+
+    public static string ContentTypeFor(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
+    {
+        ".png" => "image/png",
+        ".jpg" or ".jpeg" => "image/jpeg",
+        ".webp" => "image/webp",
+        _ => "application/octet-stream",
+    };
 }
