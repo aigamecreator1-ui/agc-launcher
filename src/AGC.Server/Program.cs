@@ -11,6 +11,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+// Must be set before CreateBuilder runs: it's read during the host's internal
+// bootstrap phase, which is what decides whether appsettings.json gets added with
+// file-watching enabled in the first place. Setting this any later (e.g. mutating
+// builder.Configuration.Sources afterward) is too late — CreateBuilder's
+// ConfigurationManager loads sources eagerly as they're added, so the
+// FileSystemWatcher (and its inotify handle) is already created by the time
+// CreateBuilder returns. Sandboxed hosts like Render's free tier cap inotify
+// instances low enough that this watcher alone can exhaust the limit — and this
+// app never needs live-reloaded appsettings.json anyway.
+Environment.SetEnvironmentVariable("DOTNET_hostBuilder:reloadConfigOnChange", "false");
+
 EnvFile.Load();
 
 var builder = WebApplication.CreateBuilder(args);
