@@ -18,3 +18,7 @@ src/AGC.Server/Storage/
 .vs/
 .idea/
 *.swp
+
+# Installer build output
+publish/
+installer/Output/

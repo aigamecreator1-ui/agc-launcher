@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AGC Launcher — Download</title>
+<meta name="description" content="AGC Launcher: browse, buy, and play indie games from one desktop app." />
+<link rel="icon" href="assets/agc_mark.png" />
+<style>
+  :root {
+    --void: #05070A;
+    --panel: #0B0F14;
+    --panel-alt: #10161D;
+    --border-subtle: #1C2733;
+    --border-dim: #26343F;
+    --cyan: #2BE0FF;
+    --cyan-bright: #8FF3FF;
+    --cyan-dim: #0FA8C4;
+    --text-primary: #E8EEF3;
+    --text-muted: #8592A0;
+    --text-faint: #4C5762;
+    --mono: "Cascadia Mono", "Cascadia Code", Consolas, Menlo, "Courier New", monospace;
+    --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--void);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, #101C24 0%, transparent 60%);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  header.nav {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-inner img { height: 28px; width: auto; }
+
+  .wordmark {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+  }
+
+  .hero {
+    padding: 96px 0 72px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-size: clamp(38px, 6vw, 60px);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin: 0 0 20px;
+  }
+
+  .tagline {
+    font-size: 17px;
+    color: var(--text-muted);
+    max-width: 520px;
+    margin: 0 auto 40px;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #0F2830;
+    border: 1.5px solid var(--cyan);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 16px;
+    padding: 16px 34px;
+    text-decoration: none;
+    cursor: pointer;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  }
+
+  .cta:hover {
+    background: #153643;
+    border-color: var(--cyan-bright);
+    transform: translateY(-2px);
+  }
+
+  .cta svg { width: 18px; height: 18px; flex: none; }
+
+  .sub-note {
+    margin-top: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    letter-spacing: 0.5px;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 24px 0 96px;
+  }
+
+  .feature {
+    background: var(--panel);
+    border: 1px solid var(--border-subtle);
+    padding: 28px 22px;
+  }
+
+  .feature .icon {
+    width: 34px;
+    height: 34px;
+    border: 1.5px solid var(--cyan-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: var(--cyan);
+  }
+
+  .feature h3 {
+    font-size: 15px;
+    margin: 0 0 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .feature p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: 28px 0 40px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 720px) {
+    .features { grid-template-columns: 1fr; }
+    .hero { padding: 64px 0 48px; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <img src="assets/agc_mark.png" alt="" />
+      <span class="wordmark">AGC LAUNCHER</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <div class="eyebrow">FREE &middot; WINDOWS</div>
+      <h1>Your games.<br />One launcher.</h1>
+      <p class="tagline">
+        Browse the store, build your library, and play — all from one lightweight
+        desktop app built for indie games.
+      </p>
+
+      <!--
+        TODO before going live: replace YOUR_GITHUB_USERNAME/agc-launcher below with
+        your real GitHub repo path once it exists. The /releases/latest/download/...
+        form always points at the newest release's asset, so you won't need to touch
+        this link again after that — just publish a new GitHub Release with a file
+        named AGC-Launcher-Setup.exe (see installer/AGCLauncher.iss) and this button
+        picks it up automatically.
+      -->
+      <a class="cta" href="https://github.com/YOUR_GITHUB_USERNAME/agc-launcher/releases/latest/download/AGC-Launcher-Setup.exe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"/><path d="m6 11 6 6 6-6"/><path d="M5 21h14"/></svg>
+        Download for Windows
+      </a>
+      <div class="sub-note">v1.0.0 &middot; Windows 10/11, 64-bit &middot; ~150 MB</div>
+    </section>
+
+    <section class="features wrap">
+      <div class="feature">
+        <div class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <h3>Browse the store</h3>
+        <p>Discover free and paid indie titles, updated as new releases ship.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+        </div>
+        <h3>One-click install</h3>
+        <p>Real downloads with real progress — no fake bars, just your game landing on disk.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+        </div>
+        <h3>Play instantly</h3>
+        <p>Launch straight from your library — the launcher stays out of your way.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    AGC LAUNCHER
+  </footer>
+
+</body>
+</html>
