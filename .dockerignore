@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+src/AGC.Server/Storage/
+.git/
+.vs/
+.idea/
+publish/
+installer/Output/
+.env
+.env.*
+!.env.example

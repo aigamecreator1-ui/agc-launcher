@@ -1,0 +1,20 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# .NET build output
+bin/
+obj/
+*.user
+
+# Local runtime data
+src/AGC.Server/*.db
+src/AGC.Server/*.db-shm
+src/AGC.Server/*.db-wal
+src/AGC.Server/Storage/
+
+# IDE
+.vs/
+.idea/
+*.swp

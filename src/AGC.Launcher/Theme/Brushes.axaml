@@ -1,0 +1,114 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Core palette -->
+    <Color x:Key="ColorVoid">#05070A</Color>
+    <Color x:Key="ColorPanel">#0B0F14</Color>
+    <Color x:Key="ColorPanelAlt">#10161D</Color>
+    <Color x:Key="ColorBorderSubtle">#1C2733</Color>
+    <Color x:Key="ColorBorderDim">#26343F</Color>
+    <Color x:Key="ColorAccentCyan">#2BE0FF</Color>
+    <Color x:Key="ColorAccentCyanBright">#8FF3FF</Color>
+    <Color x:Key="ColorAccentCyanDim">#0FA8C4</Color>
+    <Color x:Key="ColorTextPrimary">#E8EEF3</Color>
+    <Color x:Key="ColorTextMuted">#8592A0</Color>
+    <Color x:Key="ColorTextFaint">#4C5762</Color>
+    <Color x:Key="ColorDanger">#FF4D6A</Color>
+
+    <SolidColorBrush x:Key="VoidBrush" Color="{StaticResource ColorVoid}" />
+    <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource ColorPanel}" />
+    <SolidColorBrush x:Key="PanelAltBrush" Color="{StaticResource ColorPanelAlt}" />
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource ColorBorderSubtle}" />
+    <SolidColorBrush x:Key="BorderDimBrush" Color="{StaticResource ColorBorderDim}" />
+    <SolidColorBrush x:Key="AccentCyanBrush" Color="{StaticResource ColorAccentCyan}" />
+    <SolidColorBrush x:Key="AccentCyanBrightBrush" Color="{StaticResource ColorAccentCyanBright}" />
+    <SolidColorBrush x:Key="AccentCyanDimBrush" Color="{StaticResource ColorAccentCyanDim}" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource ColorTextPrimary}" />
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource ColorTextMuted}" />
+    <SolidColorBrush x:Key="TextFaintBrush" Color="{StaticResource ColorTextFaint}" />
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource ColorDanger}" />
+
+    <SolidColorBrush x:Key="CtaBackgroundBrush" Color="#0F2830" />
+    <SolidColorBrush x:Key="CtaBackgroundHoverBrush" Color="#153643" />
+    <SolidColorBrush x:Key="GhostBackgroundBrush" Color="#0C1218" />
+    <SolidColorBrush x:Key="GhostBackgroundHoverBrush" Color="#121B23" />
+
+    <SolidColorBrush x:Key="ChipBackgroundBrush" Color="#12202A" />
+    <SolidColorBrush x:Key="ChipBackgroundHoverBrush" Color="#17303C" />
+    <SolidColorBrush x:Key="SidebarBrush" Color="#080B0F" />
+    <SolidColorBrush x:Key="SidebarActiveBrush" Color="#0F1922" />
+
+    <!-- ===================== Spacing scale ===================== -->
+    <!-- Applied consistently across every page for uniform rhythm instead of ad-hoc margins. -->
+    <x:Double x:Key="SpaceXs">4</x:Double>
+    <x:Double x:Key="SpaceSm">8</x:Double>
+    <x:Double x:Key="SpaceMd">12</x:Double>
+    <x:Double x:Key="SpaceLg">20</x:Double>
+    <x:Double x:Key="SpaceXl">28</x:Double>
+    <x:Double x:Key="SpaceXxl">40</x:Double>
+
+    <Thickness x:Key="PageMargin">36,28,36,28</Thickness>
+    <Thickness x:Key="CardPadding">18,16</Thickness>
+    <Thickness x:Key="SidebarPadding">18,24</Thickness>
+
+    <!-- Thin gradient divider: transparent -> cyan -> transparent -->
+    <LinearGradientBrush x:Key="DividerBrush" StartPoint="0%,50%" EndPoint="100%,50%">
+        <GradientStop Offset="0" Color="#002BE0FF" />
+        <GradientStop Offset="0.5" Color="#802BE0FF" />
+        <GradientStop Offset="1" Color="#002BE0FF" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="DividerBrushSoft" StartPoint="0%,50%" EndPoint="100%,50%">
+        <GradientStop Offset="0" Color="#001C2733" />
+        <GradientStop Offset="0.5" Color="#FF1C2733" />
+        <GradientStop Offset="1" Color="#001C2733" />
+    </LinearGradientBrush>
+
+    <!-- Cinematic vignette: soft glow center fading to near-black edges -->
+    <RadialGradientBrush x:Key="VignetteBrush" Center="50%,32%" GradientOrigin="50%,32%" RadiusX="85%" RadiusY="85%">
+        <GradientStop Offset="0" Color="#141C24" />
+        <GradientStop Offset="0.45" Color="#0A0E13" />
+        <GradientStop Offset="1" Color="#020304" />
+    </RadialGradientBrush>
+
+    <!-- Bottom-weighted scrim over hero/banner imagery so overlaid text stays legible -->
+    <LinearGradientBrush x:Key="HeroScrimBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#00050708" />
+        <GradientStop Offset="0.5" Color="#60050708" />
+        <GradientStop Offset="1" Color="#F2050708" />
+    </LinearGradientBrush>
+
+    <!-- Faint repeating grid texture, used at low opacity as a panel/background overlay -->
+    <DrawingBrush x:Key="CircuitGridBrush" TileMode="Tile" Stretch="None"
+                  DestinationRect="0,0,64,64" SourceRect="0,0,64,64">
+        <DrawingBrush.Drawing>
+            <GeometryDrawing>
+                <GeometryDrawing.Pen>
+                    <Pen Brush="#1F3A45" Thickness="1" />
+                </GeometryDrawing.Pen>
+                <GeometryDrawing.Geometry>
+                    <GeometryGroup>
+                        <RectangleGeometry Rect="0,0,64,64" />
+                        <LineGeometry StartPoint="0,32" EndPoint="64,32" />
+                        <LineGeometry StartPoint="32,0" EndPoint="32,64" />
+                    </GeometryGroup>
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <!-- Repeating horizontal scan lines, shown on hover inside button/card chrome -->
+    <DrawingBrush x:Key="ScanlineBrush" TileMode="Tile" Stretch="None"
+                  DestinationRect="0,0,4,4" SourceRect="0,0,4,4">
+        <DrawingBrush.Drawing>
+            <GeometryDrawing Brush="#2BE0FF">
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="0,0,4,1" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <FontFamily x:Key="MonoFontFamily">Cascadia Mono,Cascadia Code,Consolas,Menlo,Courier New,monospace</FontFamily>
+
+</ResourceDictionary>

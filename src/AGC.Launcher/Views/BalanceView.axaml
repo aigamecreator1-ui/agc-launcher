@@ -1,0 +1,122 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:dtos="using:AGC.Shared.Dtos"
+             xmlns:controls="using:AGC.Launcher.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
+             x:Class="AGC.Launcher.Views.BalanceView"
+             x:DataType="vm:BalanceViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="{StaticResource PageMargin}" Spacing="{StaticResource SpaceXl}" MaxWidth="720">
+
+            <StackPanel Spacing="6">
+                <TextBlock Text="OWNER" Classes="eyebrow" />
+                <TextBlock Text="BALANCE" Classes="headline" FontSize="30" />
+            </StackPanel>
+
+            <Grid ColumnDefinitions="Auto,20,Auto" HorizontalAlignment="Left">
+
+                <!-- Recorded balance (AGC's own DB total) -->
+                <Grid Grid.Column="0">
+                    <controls:HudCorners Brush="{StaticResource AccentCyanBrush}" BracketLength="14" Margin="-8" />
+                    <controls:AngularBorder Background="{StaticResource PanelBrush}"
+                                             BorderBrush="{StaticResource BorderSubtleBrush}"
+                                             BorderThickness="1"
+                                             CornerCut="14"
+                                             Padding="32,24"
+                                             Width="330">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="RECORDED BALANCE" Classes="eyebrow" FontSize="10" />
+                            <TextBlock Text="{Binding BalanceDisplay}" Classes="stat" FontSize="38" />
+                            <TextBlock Text="Net sales recorded in AGC's own database (sales minus withdrawals)."
+                                       Classes="faint" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </controls:AngularBorder>
+                </Grid>
+
+                <!-- Withdraw -->
+                <Grid Grid.Column="2">
+                    <controls:HudCorners Brush="{StaticResource BorderDimBrush}" BracketLength="14" Margin="-8" />
+                    <controls:AngularBorder Background="{StaticResource PanelBrush}"
+                                             BorderBrush="{StaticResource BorderSubtleBrush}"
+                                             BorderThickness="1"
+                                             CornerCut="14"
+                                             Padding="32,24"
+                                             Width="330">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="AVAILABLE TO WITHDRAW" Classes="eyebrow" FontSize="10" />
+                            <TextBlock Text="{Binding AvailableToWithdrawDisplay}" Classes="stat" FontSize="26" />
+                            <TextBlock Text="Live from Stripe. Can be lower than recorded balance if a recent sale hasn't settled yet."
+                                       Classes="faint" TextWrapping="Wrap" />
+
+                            <Border Classes="divider" Margin="0,2" />
+
+                            <TextBlock Classes="mono muted" FontSize="10">
+                                <Run Text="AMOUNT TO WITHDRAW (" /><Run Text="{Binding WithdrawCurrencyLabel}" Foreground="{StaticResource AccentCyanBrush}" /><Run Text=")" />
+                            </TextBlock>
+                            <NumericUpDown Value="{Binding WithdrawAmount}" Minimum="0"
+                                           Maximum="{Binding AvailableToWithdraw}"
+                                           Increment="1" FormatString="F2" />
+                            <Button Content="WITHDRAW" Command="{Binding WithdrawCommand}" Classes="cta"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+
+                            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsWithdrawing}" />
+                            <TextBlock Text="{Binding WithdrawErrorMessage}" Classes="error" TextWrapping="Wrap"
+                                       IsVisible="{Binding WithdrawErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            <TextBlock Text="{Binding WithdrawSuccessMessage}" Classes="stat" FontSize="12" TextWrapping="Wrap"
+                                       IsVisible="{Binding WithdrawSuccessMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                        </StackPanel>
+                    </controls:AngularBorder>
+                </Grid>
+            </Grid>
+
+            <Border Classes="divider" />
+
+            <StackPanel Spacing="12">
+                <TextBlock Text="TRANSACTION HISTORY" Classes="eyebrow" />
+
+                <TextBlock Text="No activity yet." Classes="muted" IsVisible="{Binding !History.Count}" />
+
+                <ItemsControl ItemsSource="{Binding History}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:LedgerEntryDto">
+                            <controls:AngularBorder Background="{StaticResource PanelAltBrush}"
+                                                     BorderBrush="{StaticResource BorderSubtleBrush}"
+                                                     BorderThickness="1"
+                                                     CornerCut="8"
+                                                     Padding="18,14"
+                                                     Margin="0,0,0,8">
+                                <Grid ColumnDefinitions="Auto,10,*,Auto,Auto">
+                                    <Border Grid.Column="0" Classes="hud-dot"
+                                            IsVisible="{Binding Type, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static dtos:LedgerEntryType.Sale}}" />
+                                    <Border Grid.Column="0" Width="8" Height="8" CornerRadius="4" Background="{StaticResource DangerBrush}"
+                                            IsVisible="{Binding Type, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static dtos:LedgerEntryType.Withdrawal}}" />
+
+                                    <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Label}" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                        <TextBlock Text="{Binding Note}" Classes="error" FontSize="10" TextWrapping="Wrap"
+                                                   IsVisible="{Binding Note, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="3" Text="{Binding DateUtc, StringFormat='{}{0:MMM d, yyyy h:mm tt} UTC'}"
+                                               Classes="mono muted" FontSize="11" VerticalAlignment="Center" Margin="0,0,24,0" />
+                                    <TextBlock Grid.Column="4" Text="{Binding AmountDisplay}"
+                                               Classes="stat" FontSize="15" VerticalAlignment="Center" />
+                                </Grid>
+                            </controls:AngularBorder>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" />
+            <TextBlock Text="{Binding ErrorMessage}" Classes="error" TextWrapping="Wrap"
+                       IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,75 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:controls="using:AGC.Launcher.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
+             x:Class="AGC.Launcher.Views.SignUpView"
+             x:DataType="vm:SignUpViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="32,28" Spacing="10">
+            <Image Source="/Assets/Images/agc_logo.png" Height="30" Stretch="Uniform"
+                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+            <TextBlock Text="AGC // LAUNCHER" Classes="mono muted" FontSize="12" LetterSpacing="2" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="420">
+            <controls:HudCorners Brush="{StaticResource AccentCyanBrush}" BracketLength="18" Margin="-10" />
+            <controls:AngularBorder Background="#CC0B0F14"
+                                     BorderBrush="{StaticResource BorderDimBrush}"
+                                     BorderThickness="1"
+                                     CornerCut="16"
+                                     Padding="40,36">
+                <StackPanel Spacing="22">
+
+                    <StackPanel Spacing="14" HorizontalAlignment="Center">
+                        <Image Source="/Assets/Images/agc_logo.png" Height="88" Stretch="Uniform"
+                               RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        <StackPanel Spacing="6" HorizontalAlignment="Center">
+                            <TextBlock Text="NEW OPERATOR" Classes="eyebrow" HorizontalAlignment="Center" />
+                            <TextBlock Text="SIGN UP" Classes="headline" FontSize="34" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Border Classes="divider" />
+
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="EMAIL ADDRESS" Classes="eyebrow" FontSize="10" />
+                        <TextBox Text="{Binding Email}" PlaceholderText="you@example.com" />
+
+                        <TextBlock Text="USERNAME" Classes="eyebrow" FontSize="10" />
+                        <TextBox Text="{Binding Username}" PlaceholderText="pick a username" />
+
+                        <TextBlock Text="PASSWORD" Classes="eyebrow" FontSize="10" />
+                        <TextBox Text="{Binding Password}" PasswordChar="•" />
+
+                        <Button Content="CREATE ACCOUNT"
+                                Command="{Binding SignUpCommand}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Classes="cta" />
+                        <Button Content="ALREADY HAVE AN ACCOUNT? SIGN IN"
+                                Command="{Binding BackToLoginCommand}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Classes="ghost" FontSize="11" />
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Classes="error"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+                    <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+
+                </StackPanel>
+            </controls:AngularBorder>
+        </Grid>
+
+        <TextBlock Grid.Row="2" Text="AIGAMECREATOR STUDIO" Classes="faint mono" HorizontalAlignment="Center" Margin="0,0,0,24" LetterSpacing="2" />
+
+    </Grid>
+</UserControl>

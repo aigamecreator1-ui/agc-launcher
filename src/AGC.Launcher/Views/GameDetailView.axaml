@@ -1,0 +1,132 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:controls="using:AGC.Launcher.Controls"
+             xmlns:sys="using:System"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="AGC.Launcher.Views.GameDetailView"
+             x:DataType="vm:GameDetailViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="{StaticResource PageMargin}" Spacing="{StaticResource SpaceXl}" MaxWidth="960">
+
+            <Button Content="← BACK" Command="{Binding BackCommand}" Classes="ghost"
+                    Padding="14,8" FontSize="11" HorizontalAlignment="Left" />
+
+            <!-- Hero / screenshot gallery -->
+            <Grid>
+                <controls:HudCorners Brush="{StaticResource AccentCyanBrush}" BracketLength="18" Margin="-10" />
+                <Panel Height="380" ClipToBounds="True">
+                    <Border Background="{StaticResource PanelAltBrush}" />
+                    <Image Source="{Binding Screenshots[0]}" Stretch="UniformToFill" IsVisible="{Binding HasScreenshot}" />
+                    <StackPanel IsVisible="{Binding !HasScreenshot}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+                        <TextBlock Text="NO PREVIEW AVAILABLE" Classes="eyebrow" HorizontalAlignment="Center" />
+                    </StackPanel>
+                    <Border Background="{StaticResource HeroScrimBrush}" />
+                    <StackPanel VerticalAlignment="Bottom" Margin="28,0,28,24" Spacing="4">
+                        <TextBlock Text="{Binding Game.Title}" Classes="headline" FontSize="38" />
+                    </StackPanel>
+                </Panel>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,320" ColumnSpacing="{StaticResource SpaceXl}">
+
+                <!-- Description / tags -->
+                <StackPanel Grid.Column="0" Spacing="{StaticResource SpaceLg}">
+
+                    <ItemsControl ItemsSource="{Binding Chips}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="sys:String">
+                                <Border Classes="chip" Margin="0,0,8,8">
+                                    <TextBlock Text="{Binding}" Classes="chip-text" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Classes="divider" />
+
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="ABOUT" Classes="eyebrow" FontSize="10" />
+                        <TextBlock Text="{Binding Game.Description}" TextWrapping="Wrap"
+                                   Classes="card-desc" FontSize="13" LineHeight="21" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Action panel -->
+                <Grid Grid.Column="1" VerticalAlignment="Top">
+                    <controls:HudCorners Brush="{StaticResource AccentCyanBrush}" BracketLength="14" Margin="-8" />
+                    <controls:AngularBorder Background="{StaticResource PanelBrush}"
+                                             BorderBrush="{StaticResource BorderSubtleBrush}"
+                                             BorderThickness="1"
+                                             CornerCut="14"
+                                             Padding="24,22">
+                        <StackPanel Spacing="{StaticResource SpaceMd}">
+
+                            <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding IsOwned}">
+                                <Border Classes="hud-dot" />
+                                <TextBlock Text="OWNED" Classes="mono muted" FontSize="11" VerticalAlignment="Center" />
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding PriceDisplay}" Classes="stat" FontSize="30" IsVisible="{Binding !IsOwned}" />
+                            <TextBlock Text="{Binding SizeDisplay}" Classes="faint" />
+
+                            <Border Classes="divider" Margin="0,4" />
+
+                            <!-- Buy: reached from the Store, not owned yet -->
+                            <StackPanel Spacing="8" IsVisible="{Binding ShowBuy}">
+                                <Button Content="{Binding StoreItem.BuyLabel}" Command="{Binding StoreItem.BuyCommand}"
+                                        Classes="cta" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                                <StackPanel Spacing="4" IsVisible="{Binding StoreItem.IsPurchasing}">
+                                    <ProgressBar IsIndeterminate="True" />
+                                    <TextBlock Text="{Binding StoreItem.PurchasingStatus}" Classes="mono muted" FontSize="10" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding StoreItem.ErrorMessage}" Classes="error" TextWrapping="Wrap"
+                                           IsVisible="{Binding StoreItem.ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            </StackPanel>
+
+                            <!-- Owned, but reached from the Store: point to the Library to install -->
+                            <StackPanel Spacing="8" IsVisible="{Binding ShowGoToLibraryPrompt}">
+                                <TextBlock Text="You own this title." Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                                <Button Content="GO TO LIBRARY" Command="{Binding GoToLibraryCommand}"
+                                        Classes="cta" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                            </StackPanel>
+
+                            <!-- Install / Play: reached from the Library -->
+                            <StackPanel Spacing="8" IsVisible="{Binding ShowLibraryActions}">
+                                <Button Content="INSTALL" Command="{Binding LibraryItem.InstallCommand}"
+                                        IsVisible="{Binding LibraryItem.IsNotInstalled}"
+                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Classes="cta" />
+
+                                <StackPanel Spacing="6" IsVisible="{Binding LibraryItem.IsInstalling}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="DOWNLOADING" Classes="mono muted" FontSize="10" LetterSpacing="1" />
+                                        <TextBlock Grid.Column="1" Text="{Binding LibraryItem.InstallProgress, StringFormat='{}{0:P0}'}"
+                                                   Classes="stat" FontSize="12" />
+                                    </Grid>
+                                    <controls:SegmentedBar Value="{Binding LibraryItem.InstallProgress}" Height="12" />
+                                </StackPanel>
+
+                                <Button Content="PLAY" Command="{Binding LibraryItem.PlayCommand}"
+                                        IsVisible="{Binding LibraryItem.IsInstalled}"
+                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Classes="cta" />
+
+                                <TextBlock Text="{Binding LibraryItem.ErrorMessage}" Classes="error" TextWrapping="Wrap"
+                                           IsVisible="{Binding LibraryItem.ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            </StackPanel>
+
+                        </StackPanel>
+                    </controls:AngularBorder>
+                </Grid>
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

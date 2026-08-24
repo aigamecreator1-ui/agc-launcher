@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:controls="using:AGC.Launcher.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
+             x:Class="AGC.Launcher.Views.AnalyticsView"
+             x:DataType="vm:AnalyticsViewModel">
+
+    <StackPanel Margin="{StaticResource PageMargin}" Spacing="{StaticResource SpaceXl}">
+        <StackPanel Spacing="6">
+            <TextBlock Text="OWNER" Classes="eyebrow" />
+            <TextBlock Text="ANALYTICS" Classes="headline" FontSize="30" />
+        </StackPanel>
+
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,60,0,0">
+            <controls:HudCorners Brush="{StaticResource BorderDimBrush}" BracketLength="16" Margin="-12" />
+            <controls:AngularBorder Background="{StaticResource PanelBrush}"
+                                     BorderBrush="{StaticResource BorderSubtleBrush}"
+                                     BorderThickness="1"
+                                     CornerCut="14"
+                                     Padding="40,32">
+                <StackPanel Spacing="10" HorizontalAlignment="Center" Width="360">
+                    <TextBlock Text="NO DATA YET" Classes="eyebrow" HorizontalAlignment="Center" />
+                    <TextBlock Text="Per-game comments, likes, downloads, and trend data will appear here once players start engaging with published titles."
+                               Classes="muted" TextWrapping="Wrap" TextAlignment="Center" FontSize="12" />
+                </StackPanel>
+            </controls:AngularBorder>
+        </Grid>
+    </StackPanel>
+</UserControl>

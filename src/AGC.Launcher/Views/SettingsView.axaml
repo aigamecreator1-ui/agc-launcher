@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:controls="using:AGC.Launcher.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
+             x:Class="AGC.Launcher.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="{StaticResource PageMargin}" Spacing="{StaticResource SpaceXl}" MaxWidth="640">
+
+            <StackPanel Spacing="6">
+                <TextBlock Text="PREFERENCES" Classes="eyebrow" />
+                <TextBlock Text="SETTINGS" Classes="headline" FontSize="30" />
+            </StackPanel>
+
+            <!-- Account -->
+            <StackPanel Spacing="{StaticResource SpaceMd}">
+                <TextBlock Text="ACCOUNT" Classes="eyebrow" FontSize="10" />
+                <controls:AngularBorder Background="{StaticResource PanelBrush}"
+                                         BorderBrush="{StaticResource BorderSubtleBrush}"
+                                         BorderThickness="1"
+                                         CornerCut="12"
+                                         Padding="24,20">
+                    <StackPanel Spacing="14">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Border Grid.Column="0" Width="52" Height="52" CornerRadius="26"
+                                    Background="{StaticResource PanelAltBrush}"
+                                    BorderBrush="{StaticResource AccentCyanDimBrush}" BorderThickness="1">
+                                <TextBlock Text="{Binding UserInitial}" Classes="stat" FontSize="20"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Spacing="4" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding CurrentUser.Username}" Classes="card-title" FontSize="16" />
+                                    <Border Classes="chip" IsVisible="{Binding CurrentUser.IsOwner}" Padding="7,2">
+                                        <TextBlock Text="OWNER" Classes="chip-text" Foreground="{StaticResource AccentCyanBrush}" />
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="{Binding CurrentUser.Email}" Classes="mono muted" FontSize="12" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Classes="divider" />
+
+                        <Button Content="SIGN OUT" Command="{Binding SignOutCommand}" Classes="ghost"
+                                Padding="16,9" FontSize="11" HorizontalAlignment="Left" />
+                    </StackPanel>
+                </controls:AngularBorder>
+            </StackPanel>
+
+            <!-- Preferences -->
+            <StackPanel Spacing="{StaticResource SpaceMd}">
+                <TextBlock Text="LAUNCHER" Classes="eyebrow" FontSize="10" />
+                <controls:AngularBorder Background="{StaticResource PanelBrush}"
+                                         BorderBrush="{StaticResource BorderSubtleBrush}"
+                                         BorderThickness="1"
+                                         CornerCut="12"
+                                         Padding="24,6">
+                    <StackPanel>
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,16">
+                            <StackPanel Grid.Column="0" Spacing="3">
+                                <TextBlock Text="Launch minimized" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" />
+                                <TextBlock Text="Start the launcher in the system tray instead of a visible window." Classes="card-desc" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding LaunchMinimized}" OnContent="{x:Null}" OffContent="{x:Null}" VerticalAlignment="Center" />
+                        </Grid>
+
+                        <Border Classes="divider" />
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,16">
+                            <StackPanel Grid.Column="0" Spacing="3">
+                                <TextBlock Text="Notify me about new releases" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" />
+                                <TextBlock Text="Get a heads-up when a title you own publishes an update." Classes="card-desc" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding NotifyOnNewRelease}" OnContent="{x:Null}" OffContent="{x:Null}" VerticalAlignment="Center" />
+                        </Grid>
+
+                        <Border Classes="divider" />
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,16">
+                            <StackPanel Grid.Column="0" Spacing="3">
+                                <TextBlock Text="Auto-install after purchase" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" />
+                                <TextBlock Text="Start downloading a game the moment you buy it, no extra click." Classes="card-desc" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoInstallPurchases}" OnContent="{x:Null}" OffContent="{x:Null}" VerticalAlignment="Center" />
+                        </Grid>
+
+                    </StackPanel>
+                </controls:AngularBorder>
+
+                <TextBlock Text="SAVED" Classes="stat" FontSize="10" LetterSpacing="2"
+                           IsVisible="{Binding ShowSavedConfirmation}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:controls="using:AGC.Launcher.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
+             x:Class="AGC.Launcher.Views.MaintenanceView"
+             x:DataType="vm:MaintenanceViewModel">
+
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="440">
+        <controls:HudCorners Brush="{StaticResource AccentCyanBrush}" BracketLength="18" Margin="-10" />
+        <controls:AngularBorder Background="#CC0B0F14"
+                                 BorderBrush="{StaticResource BorderDimBrush}"
+                                 BorderThickness="1"
+                                 CornerCut="16"
+                                 Padding="40,36">
+            <StackPanel Spacing="20" HorizontalAlignment="Center">
+
+                <Border Classes="hud-dot" HorizontalAlignment="Center" />
+
+                <StackPanel Spacing="6" HorizontalAlignment="Center">
+                    <TextBlock Text="LAUNCHER LOCKED" Classes="eyebrow" HorizontalAlignment="Center" />
+                    <TextBlock Text="NEW RELEASE INCOMING" Classes="headline" FontSize="26" HorizontalAlignment="Center" TextAlignment="Center" />
+                </StackPanel>
+
+                <Border Classes="divider" />
+
+                <TextBlock Text="{Binding Message}" Classes="muted" TextWrapping="Wrap" TextAlignment="Center" />
+
+                <TextBlock Text="{Binding CountdownDisplay}" Classes="stat" FontSize="40" HorizontalAlignment="Center" />
+                <TextBlock Text="ESTIMATED TIME REMAINING" Classes="faint mono" HorizontalAlignment="Center" LetterSpacing="2" />
+
+            </StackPanel>
+        </controls:AngularBorder>
+    </Grid>
+</UserControl>

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AGC.Launcher.Core/AGC.Launcher.Core.csproj" />
+    <Project Path="src/AGC.Launcher/AGC.Launcher.csproj" />
+    <Project Path="src/AGC.Server/AGC.Server.csproj" />
+    <Project Path="src/AGC.Shared/AGC.Shared.csproj" />
+  </Folder>
+</Solution>

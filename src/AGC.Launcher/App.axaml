@@ -1,0 +1,16 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="AGC.Launcher.App"
+             xmlns:local="using:AGC.Launcher"
+             RequestedThemeVariant="Dark">
+             <!-- Always dark: the sci-fi HUD look does not have a light variant. -->
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://AGC.Launcher/Theme/Styles.axaml" />
+    </Application.Styles>
+</Application>

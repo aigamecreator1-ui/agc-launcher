@@ -1,0 +1,393 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:AGC.Launcher.Controls">
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://AGC.Launcher/Theme/Brushes.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <!-- ===================== Typography ===================== -->
+
+    <Style Selector="TextBlock.eyebrow">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="LetterSpacing" Value="3" />
+        <Setter Property="Foreground" Value="{StaticResource AccentCyanBrush}" />
+    </Style>
+
+    <Style Selector="TextBlock.headline">
+        <Setter Property="FontSize" Value="42" />
+        <Setter Property="FontWeight" Value="Black" />
+        <Setter Property="LetterSpacing" Value="0.5" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="TextBlock.section-title">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <!-- Game title inside a card/detail page: the dominant text element in any listing -->
+    <Style Selector="TextBlock.card-title">
+        <Setter Property="FontSize" Value="19" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="LetterSpacing" Value="0.2" />
+        <Setter Property="LineHeight" Value="22" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <!-- Secondary/body copy under a title: deliberately smaller and quieter than the title -->
+    <Style Selector="TextBlock.card-desc">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="LineHeight" Value="17" />
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+    </Style>
+
+    <Style Selector="TextBlock.mono">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+    </Style>
+
+    <Style Selector="TextBlock.stat">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="Foreground" Value="{StaticResource AccentCyanBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+    </Style>
+
+    <Style Selector="TextBlock.faint">
+        <Setter Property="Foreground" Value="{StaticResource TextFaintBrush}" />
+        <Setter Property="FontSize" Value="11" />
+    </Style>
+
+    <Style Selector="TextBlock.error">
+        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <!-- ===================== HUD accents ===================== -->
+
+    <Style Selector="Border.hud-dot">
+        <Setter Property="Width" Value="8" />
+        <Setter Property="Height" Value="8" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Background" Value="{StaticResource AccentCyanBrush}" />
+        <Setter Property="BoxShadow" Value="0 0 8 2 #802BE0FF" />
+    </Style>
+
+    <Style Selector="Border.divider">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Background" Value="{StaticResource DividerBrush}" />
+    </Style>
+
+    <!-- ===================== Buttons ===================== -->
+
+    <Style Selector="Button.cta, Button.ghost">
+        <Setter Property="Padding" Value="20,11" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="RenderTransform" Value="none" />
+        <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.14" Easing="CubicEaseOut" />
+            </Transitions>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <Border Name="PART_Glow"
+                            Background="Transparent"
+                            BoxShadow="0 0 18 1 #2BE0FF"
+                            Opacity="0" />
+                    <controls:AngularBorder Name="PART_Chrome"
+                                             Background="{TemplateBinding Background}"
+                                             BorderBrush="{TemplateBinding BorderBrush}"
+                                             BorderThickness="{TemplateBinding BorderThickness}"
+                                             CornerCut="8"
+                                             Padding="{TemplateBinding Padding}">
+                        <Panel>
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                               ContentTemplate="{TemplateBinding ContentTemplate}"
+                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                               Foreground="{TemplateBinding Foreground}" />
+                            <Border Name="PART_ScanOverlay"
+                                    Background="{StaticResource ScanlineBrush}"
+                                    Opacity="0"
+                                    IsHitTestVisible="False" />
+                        </Panel>
+                    </controls:AngularBorder>
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.cta /template/ controls|AngularBorder#PART_Chrome, Button.ghost /template/ controls|AngularBorder#PART_Chrome">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.15" />
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.cta /template/ Border#PART_Glow, Button.ghost /template/ Border#PART_Glow, Button.cta /template/ Border#PART_ScanOverlay, Button.ghost /template/ Border#PART_ScanOverlay">
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.cta">
+        <Setter Property="Background" Value="{StaticResource CtaBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource AccentCyanBrush}" />
+        <Setter Property="BorderThickness" Value="1.5" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="Button.cta:pointerover">
+        <Setter Property="Background" Value="{StaticResource CtaBackgroundHoverBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource AccentCyanBrightBrush}" />
+        <Setter Property="RenderTransform" Value="translateY(-2px) scale(1.03)" />
+    </Style>
+
+    <Style Selector="Button.cta:pointerover /template/ Border#PART_ScanOverlay">
+        <Setter Property="Opacity" Value="0.3" />
+    </Style>
+
+    <Style Selector="Button.cta:pointerover /template/ Border#PART_Glow">
+        <Setter Property="Opacity" Value="0.85" />
+    </Style>
+
+    <Style Selector="Button.cta:pressed">
+        <Setter Property="RenderTransform" Value="scale(0.97)" />
+    </Style>
+
+    <Style Selector="Button.ghost">
+        <Setter Property="Background" Value="{StaticResource GhostBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+    </Style>
+
+    <Style Selector="Button.ghost:pointerover">
+        <Setter Property="Background" Value="{StaticResource GhostBackgroundHoverBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource AccentCyanDimBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="RenderTransform" Value="translateY(-2px) scale(1.02)" />
+    </Style>
+
+    <Style Selector="Button.ghost:pointerover /template/ Border#PART_ScanOverlay">
+        <Setter Property="Opacity" Value="0.15" />
+    </Style>
+
+    <Style Selector="Button.ghost:pressed">
+        <Setter Property="RenderTransform" Value="scale(0.97)" />
+    </Style>
+
+    <Style Selector="Button.cta:disabled, Button.ghost:disabled">
+        <Setter Property="Opacity" Value="0.45" />
+    </Style>
+
+    <!-- Chromeless button used to make an entire card body clickable without stealing
+         clicks from nested action buttons (buy/install/play sit outside it). -->
+    <Style Selector="Button.card-hit">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ContentPresenter Content="{TemplateBinding Content}"
+                                   ContentTemplate="{TemplateBinding ContentTemplate}" />
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- ===================== Sidebar navigation ===================== -->
+
+    <Style Selector="ToggleButton.sidebar-item">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="LetterSpacing" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid ColumnDefinitions="3,*">
+                    <Border Name="PART_Rail" Grid.Column="0" Width="3" Margin="0,3" CornerRadius="2"
+                            Background="{StaticResource AccentCyanBrush}" Opacity="0">
+                        <Border.Transitions>
+                            <Transitions>
+                                <DoubleTransition Property="Opacity" Duration="0:0:0.15" />
+                            </Transitions>
+                        </Border.Transitions>
+                    </Border>
+                    <Border Grid.Column="1" Background="{TemplateBinding Background}" CornerRadius="0,4,4,0" Margin="10,0,10,0">
+                        <Border.Transitions>
+                            <Transitions>
+                                <BrushTransition Property="Background" Duration="0:0:0.15" />
+                            </Transitions>
+                        </Border.Transitions>
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           Padding="14,11"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Left" />
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.sidebar-item:pointerover">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.sidebar-item:pointerover /template/ Border#PART_Rail">
+        <Setter Property="Opacity" Value="0.4" />
+    </Style>
+
+    <Style Selector="ToggleButton.sidebar-item:checked">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.sidebar-item:checked /template/ Border#PART_Rail">
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <Style Selector="ToggleButton.sidebar-item:checked /template/ Border">
+        <Setter Property="Background" Value="{StaticResource SidebarActiveBrush}" />
+    </Style>
+
+    <!-- ===================== Cards ===================== -->
+
+    <!-- Applied to the outer card container in Store/Library grids: lift + brighten on hover. -->
+    <Style Selector="Grid.game-card">
+        <Setter Property="RenderTransform" Value="none" />
+        <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="CubicEaseOut" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Grid.game-card:pointerover">
+        <Setter Property="RenderTransform" Value="translateY(-5px) scale(1.015)" />
+    </Style>
+
+    <Style Selector="Grid.game-card controls|AngularBorder.card-chrome">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.18" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Grid.game-card:pointerover controls|AngularBorder.card-chrome">
+        <Setter Property="BorderBrush" Value="{StaticResource AccentCyanDimBrush}" />
+    </Style>
+
+    <!-- ===================== Chips (genre / tags) ===================== -->
+
+    <Style Selector="Border.chip">
+        <Setter Property="Background" Value="{StaticResource ChipBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="10,5" />
+    </Style>
+
+    <Style Selector="TextBlock.chip-text">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="LetterSpacing" Value="1" />
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+    </Style>
+
+    <!-- ===================== Inputs ===================== -->
+
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="{StaticResource PanelAltBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="CaretBrush" Value="{StaticResource AccentCyanBrush}" />
+        <Setter Property="SelectionBrush" Value="#402BE0FF" />
+        <Setter Property="Padding" Value="12,10" />
+    </Style>
+
+    <Style Selector="TextBox">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="TextBox:focus">
+        <Setter Property="BorderBrush" Value="{StaticResource AccentCyanBrush}" />
+    </Style>
+
+    <Style Selector="TextBox.mono-input">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="LetterSpacing" Value="6" />
+    </Style>
+
+    <Style Selector="TextBox.search">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="14,10" />
+    </Style>
+
+    <Style Selector="ComboBox">
+        <Setter Property="Background" Value="{StaticResource PanelAltBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="12,10" />
+    </Style>
+
+    <!-- ===================== Progress ===================== -->
+
+    <Style Selector="ProgressBar">
+        <Setter Property="Height" Value="3" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Background" Value="{StaticResource BorderSubtleBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource AccentCyanBrush}" />
+    </Style>
+
+    <Style Selector="controls|SegmentedBar">
+        <Setter Property="TrackBrush" Value="{StaticResource BorderSubtleBrush}" />
+        <Setter Property="FillBrush" Value="{StaticResource AccentCyanDimBrush}" />
+        <Setter Property="LeadBrush" Value="{StaticResource AccentCyanBrightBrush}" />
+    </Style>
+
+</Styles>

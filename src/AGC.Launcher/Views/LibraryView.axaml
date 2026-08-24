@@ -1,0 +1,154 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:controls="using:AGC.Launcher.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
+             x:Class="AGC.Launcher.Views.LibraryView"
+             x:DataType="vm:LibraryViewModel">
+
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10"
+                    IsVisible="{Binding !HasAnyGames}">
+            <TextBlock Text="NO GAMES INSTALLED" Classes="eyebrow" HorizontalAlignment="Center" />
+            <TextBlock Text="Visit the Store to acquire your first title." Classes="muted" HorizontalAlignment="Center" />
+        </StackPanel>
+
+        <ScrollViewer IsVisible="{Binding HasAnyGames}">
+            <StackPanel Margin="{StaticResource PageMargin}" Spacing="{StaticResource SpaceXl}">
+
+                <StackPanel Spacing="6">
+                    <TextBlock Text="OWNED TITLES" Classes="eyebrow" />
+                    <TextBlock Text="LIBRARY" Classes="headline" FontSize="30" />
+                </StackPanel>
+
+                <!-- Continue playing -->
+                <StackPanel Spacing="{StaticResource SpaceMd}" IsVisible="{Binding RecentlyPlayed.Count}">
+                    <TextBlock Text="CONTINUE PLAYING" Classes="eyebrow" />
+
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding RecentlyPlayed}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LibraryGameItemViewModel">
+                                    <Grid Width="220" Margin="0,0,16,6" Classes="game-card">
+                                        <controls:HudCorners Brush="{StaticResource AccentCyanBrush}" BracketLength="10" Margin="-6" />
+                                        <controls:AngularBorder Classes="card-chrome"
+                                                                 Background="{StaticResource PanelBrush}"
+                                                                 BorderBrush="{StaticResource BorderSubtleBrush}"
+                                                                 BorderThickness="1"
+                                                                 CornerCut="10"
+                                                                 Padding="0">
+                                            <StackPanel>
+                                                <Button Classes="card-hit" Command="{Binding OpenDetailCommand}">
+                                                    <Panel Height="104" ClipToBounds="True">
+                                                        <Border Background="{StaticResource PanelAltBrush}" />
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                               IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                                        <Border Background="{StaticResource HeroScrimBrush}" />
+                                                        <TextBlock Text="{Binding Game.Title}" Classes="card-title" FontSize="14"
+                                                                   VerticalAlignment="Bottom" Margin="12,0,12,10"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </Panel>
+                                                </Button>
+                                                <Button Content="PLAY" Command="{Binding PlayCommand}" IsVisible="{Binding IsInstalled}"
+                                                        Classes="cta" Margin="12,10,12,12" Padding="0,7" FontSize="11"
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                                                <Button Content="INSTALL" Command="{Binding InstallCommand}" IsVisible="{Binding !IsInstalled}"
+                                                        Classes="ghost" Margin="12,10,12,12" Padding="0,7" FontSize="11"
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                                            </StackPanel>
+                                        </controls:AngularBorder>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <Border Classes="divider" />
+                </StackPanel>
+
+                <!-- Search + filter -->
+                <Grid ColumnDefinitions="*,220" ColumnSpacing="{StaticResource SpaceMd}">
+                    <TextBox Grid.Column="0" Classes="search" Text="{Binding SearchText}" PlaceholderText="SEARCH YOUR LIBRARY..." />
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding Genres}" SelectedItem="{Binding SelectedGenre}"
+                              HorizontalAlignment="Stretch" />
+                </Grid>
+
+                <TextBlock Text="NO GAMES MATCH YOUR SEARCH" Classes="eyebrow" IsVisible="{Binding !Games.Count}" Margin="0,20" />
+
+                <ItemsControl ItemsSource="{Binding Games}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LibraryGameItemViewModel">
+                            <Grid Width="300" Margin="0,0,20,20" Classes="game-card">
+                                <controls:HudCorners Brush="{StaticResource AccentCyanBrush}" BracketLength="14" Margin="-8" />
+                                <controls:AngularBorder Classes="card-chrome"
+                                                         Background="{StaticResource PanelBrush}"
+                                                         BorderBrush="{StaticResource BorderSubtleBrush}"
+                                                         BorderThickness="1"
+                                                         CornerCut="14"
+                                                         Padding="0">
+                                    <StackPanel>
+                                        <Button Classes="card-hit" Command="{Binding OpenDetailCommand}">
+                                            <StackPanel>
+                                                <Panel Height="130" ClipToBounds="True">
+                                                    <Border Background="{StaticResource PanelAltBrush}" />
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                           IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                                </Panel>
+
+                                                <StackPanel Margin="18,16,18,0" Spacing="8">
+                                                    <TextBlock Text="{Binding Game.Title}" Classes="card-title" TextTrimming="CharacterEllipsis" />
+                                                    <Panel Height="34" ClipToBounds="True">
+                                                        <TextBlock Text="{Binding Game.Description}" TextWrapping="Wrap" Classes="card-desc" />
+                                                    </Panel>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <StackPanel Margin="18,10,18,16" Spacing="10">
+                                            <Border Classes="divider" />
+
+                                            <Button Content="INSTALL"
+                                                    Command="{Binding InstallCommand}"
+                                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                    IsVisible="{Binding IsNotInstalled}" Classes="cta" />
+
+                                            <StackPanel Spacing="6" IsVisible="{Binding IsInstalling}">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Grid.Column="0" Text="DOWNLOADING" Classes="mono muted" FontSize="10" LetterSpacing="1" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding InstallProgress, StringFormat='{}{0:P0}'}"
+                                                               Classes="stat" FontSize="12" />
+                                                </Grid>
+                                                <controls:SegmentedBar Value="{Binding InstallProgress}" Height="12" />
+                                            </StackPanel>
+
+                                            <Button Content="PLAY"
+                                                    Command="{Binding PlayCommand}"
+                                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                    IsVisible="{Binding IsInstalled}" Classes="cta" />
+
+                                            <TextBlock Text="{Binding ErrorMessage}" Classes="error" TextWrapping="Wrap"
+                                                       IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </controls:AngularBorder>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

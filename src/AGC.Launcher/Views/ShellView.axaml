@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
+             x:Class="AGC.Launcher.Views.ShellView"
+             x:DataType="vm:ShellViewModel">
+
+    <Grid ColumnDefinitions="236,*">
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="{StaticResource SidebarPadding}">
+
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10,0,0,32">
+                    <Image Source="/Assets/Images/agc_logo.png" Height="32" Stretch="Uniform"
+                           RenderOptions.BitmapInterpolationMode="HighQuality" VerticalAlignment="Center" />
+                    <TextBlock Text="AGC LAUNCHER" Classes="mono" FontSize="12" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}" LetterSpacing="1" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom" Spacing="12">
+                    <Border Classes="divider" />
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="14,0">
+                        <Border Classes="hud-dot" />
+                        <TextBlock Text="{Binding CurrentUser.Email}" Classes="mono muted" FontSize="11"
+                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <Button Content="SIGN OUT" Command="{Binding SignOutCommand}" Classes="ghost"
+                            Padding="14,8" FontSize="11" Margin="10,2,10,0"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <ToggleButton Content="STORE" Classes="sidebar-item"
+                                  IsChecked="{Binding SelectedTab, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:ShellTab.Store}}"
+                                  Command="{Binding ShowStoreCommand}" />
+                    <ToggleButton Content="LIBRARY" Classes="sidebar-item"
+                                  IsChecked="{Binding SelectedTab, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:ShellTab.Library}}"
+                                  Command="{Binding ShowLibraryCommand}" />
+
+                    <StackPanel Spacing="3" IsVisible="{Binding IsOwner}" Margin="0,14,0,0">
+                        <TextBlock Text="OWNER" Classes="faint mono" FontSize="9" LetterSpacing="2" Margin="14,0,0,6" />
+                        <ToggleButton Content="ANALYTICS" Classes="sidebar-item"
+                                      IsChecked="{Binding SelectedTab, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:ShellTab.Analytics}}"
+                                      Command="{Binding ShowAnalyticsCommand}" />
+                        <ToggleButton Content="BALANCE" Classes="sidebar-item"
+                                      IsChecked="{Binding SelectedTab, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:ShellTab.Balance}}"
+                                      Command="{Binding ShowBalanceCommand}" />
+                        <ToggleButton Content="PUBLISH" Classes="sidebar-item" ToolTip.Tip="Publish a new release"
+                                      IsChecked="{Binding SelectedTab, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:ShellTab.Publish}}"
+                                      Command="{Binding ShowPublishCommand}" />
+                        <ToggleButton Content="GAMES" Classes="sidebar-item" ToolTip.Tip="Manage published games"
+                                      IsChecked="{Binding SelectedTab, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:ShellTab.Games}}"
+                                      Command="{Binding ShowGamesCommand}" />
+                    </StackPanel>
+
+                    <Border Height="1" Background="{StaticResource BorderDimBrush}" Margin="14,14" />
+
+                    <ToggleButton Content="SETTINGS" Classes="sidebar-item"
+                                  IsChecked="{Binding SelectedTab, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:ShellTab.Settings}}"
+                                  Command="{Binding ShowSettingsCommand}" />
+                </StackPanel>
+
+            </DockPanel>
+        </Border>
+
+        <ContentControl Grid.Column="1" Content="{Binding CurrentContentViewModel}" />
+
+    </Grid>
+</UserControl>

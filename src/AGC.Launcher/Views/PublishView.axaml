@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
+             x:Class="AGC.Launcher.Views.PublishView"
+             x:DataType="vm:PublishViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="{StaticResource PageMargin}" Spacing="{StaticResource SpaceXl}" MaxWidth="640">
+
+            <StackPanel Spacing="6">
+                <TextBlock Text="OWNER" Classes="eyebrow" />
+                <TextBlock Text="PUBLISH NEW RELEASE" Classes="headline" FontSize="26" />
+            </StackPanel>
+
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap">
+                Publishing notifies every active player, closes the launcher for everyone for 5 minutes while the release is added, then reopens automatically.
+            </TextBlock>
+
+            <Border Classes="divider" />
+
+            <StackPanel Spacing="10">
+                <TextBlock Text="TITLE" Classes="eyebrow" FontSize="10" />
+                <TextBox Text="{Binding Title}" PlaceholderText="Game title" />
+
+                <TextBlock Text="DESCRIPTION" Classes="eyebrow" FontSize="10" />
+                <TextBox Text="{Binding Description}" AcceptsReturn="True" Height="90" TextWrapping="Wrap" />
+
+                <Grid ColumnDefinitions="*,16,*">
+                    <StackPanel Grid.Column="0" Spacing="10">
+                        <TextBlock Text="GENRE" Classes="eyebrow" FontSize="10" />
+                        <TextBox Text="{Binding Genre}" PlaceholderText="Action, Puzzle..." />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="10">
+                        <TextBlock Text="TAGS" Classes="eyebrow" FontSize="10" />
+                        <TextBox Text="{Binding Tags}" PlaceholderText="comma, separated" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <Border Classes="divider" />
+
+            <Grid ColumnDefinitions="*,16,*">
+                <StackPanel Grid.Column="0" Spacing="8">
+                    <TextBlock Text="BUILD FILE (.ZIP)" Classes="eyebrow" FontSize="10" />
+                    <Button Content="CHOOSE FILE" Classes="ghost" Click="OnChooseBuildFileClick" HorizontalAlignment="Stretch" />
+                    <TextBlock Text="{Binding BuildFileDisplay}" Classes="mono muted" FontSize="11" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="8">
+                    <TextBlock Text="THUMBNAIL IMAGE" Classes="eyebrow" FontSize="10" />
+                    <Button Content="CHOOSE IMAGE" Classes="ghost" Click="OnChooseThumbnailClick" HorizontalAlignment="Stretch" />
+                    <TextBlock Text="{Binding ThumbnailDisplay}" Classes="mono muted" FontSize="11" TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
+
+            <Border Classes="divider" />
+
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="PAID RELEASE" Classes="eyebrow" FontSize="10" VerticalAlignment="Center" />
+                <ToggleSwitch Grid.Column="2" IsChecked="{Binding IsPaid}" />
+            </Grid>
+
+            <StackPanel Spacing="8" IsVisible="{Binding IsPaid}">
+                <TextBlock Text="PRICE — SUGGESTED FROM BUILD SIZE, OVERRIDE FREELY" Classes="eyebrow" FontSize="10" />
+                <NumericUpDown Value="{Binding PriceUsd}" Minimum="0" Increment="0.5" FormatString="F2"
+                               HorizontalAlignment="Left" Width="160" />
+            </StackPanel>
+
+            <Button Content="PUBLISH" Command="{Binding PublishCommand}" Classes="cta"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+
+            <TextBlock Text="{Binding ErrorMessage}" Classes="error" TextWrapping="Wrap"
+                       IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            <TextBlock Text="{Binding StatusMessage}" Classes="stat" TextWrapping="Wrap" FontSize="12"
+                       IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGC.Launcher.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
+             x:Class="AGC.Launcher.Views.SplashView"
+             x:DataType="vm:SplashViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="UserControl">
+            <Style.Animations>
+                <Animation Duration="0:0:0.5" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+        <Style Selector="Image.splash-logo">
+            <Style.Animations>
+                <Animation Duration="0:0:1.1" IterationCount="INFINITE" Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0.55" />
+                    </KeyFrame>
+                    <KeyFrame Cue="50%">
+                        <Setter Property="Opacity" Value="1" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="0.55" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="18" HorizontalAlignment="Center">
+            <Image Classes="splash-logo" Source="/Assets/Images/agc_logo.png" Height="96" Stretch="Uniform"
+                   RenderOptions.BitmapInterpolationMode="HighQuality" HorizontalAlignment="Center" />
+            <StackPanel Spacing="6" HorizontalAlignment="Center">
+                <TextBlock Text="AGC // LAUNCHER" Classes="eyebrow" HorizontalAlignment="Center" />
+                <TextBlock Text="INITIALIZING" Classes="faint mono" HorizontalAlignment="Center" LetterSpacing="3" />
+            </StackPanel>
+            <ProgressBar IsIndeterminate="True" Width="220" />
+        </StackPanel>
+    </Grid>
+</UserControl>
