@@ -19,7 +19,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app .
 
-# SQLITE_DB_PATH and STORAGE_ROOT are set in fly.toml to point at the mounted volume;
+# SQLITE_DB_PATH and STORAGE_ROOT are set as environment variables in your hosting
+# platform's dashboard (e.g. Koyeb service settings) to point at a mounted volume;
 # these ENV lines are just the container-listening address, not deployment-specific.
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 EXPOSE 8080

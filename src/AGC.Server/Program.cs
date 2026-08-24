@@ -93,11 +93,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Behind a real deployment's reverse proxy (Fly, Railway, etc.), the app only ever
-// sees plain HTTP from the proxy — trust its X-Forwarded-* headers so Request.Scheme
-// and Request.Host (used to build the Stripe Checkout success/cancel URLs) correctly
-// reflect the public https:// URL instead of an internal http:// one. Every proxy in
-// front of this app is Fly's own edge, so trusting all forwarders here is safe.
+// Behind a real deployment's reverse proxy (Koyeb, Fly, Railway, etc.), the app only
+// ever sees plain HTTP from the proxy — trust its X-Forwarded-* headers so
+// Request.Scheme and Request.Host (used to build the Stripe Checkout success/cancel
+// URLs) correctly reflect the public https:// URL instead of an internal http:// one.
+// Every proxy in front of this app is the platform's own edge, so trusting all
+// forwarders here is safe.
 var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
