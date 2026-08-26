@@ -4,29 +4,126 @@
              xmlns:controls="using:AGC.Launcher.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="AGC.Launcher.Views.AnalyticsView"
              x:DataType="vm:AnalyticsViewModel">
 
-    <StackPanel Margin="{StaticResource PageMargin}" Spacing="{StaticResource SpaceXl}">
-        <StackPanel Spacing="6">
-            <TextBlock Text="OWNER" Classes="eyebrow" />
-            <TextBlock Text="ANALYTICS" Classes="headline" FontSize="30" />
-        </StackPanel>
+    <ScrollViewer>
+        <StackPanel Margin="{StaticResource PageMargin}" Spacing="{StaticResource SpaceXl}">
 
-        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,60,0,0">
-            <controls:HudCorners Brush="{StaticResource BorderDimBrush}" BracketLength="16" Margin="-12" />
-            <controls:AngularBorder Background="{StaticResource PanelBrush}"
-                                     BorderBrush="{StaticResource BorderSubtleBrush}"
-                                     BorderThickness="1"
-                                     CornerCut="14"
-                                     Padding="40,32">
-                <StackPanel Spacing="10" HorizontalAlignment="Center" Width="360">
-                    <TextBlock Text="NO DATA YET" Classes="eyebrow" HorizontalAlignment="Center" />
-                    <TextBlock Text="Per-game comments, likes, downloads, and trend data will appear here once players start engaging with published titles."
-                               Classes="muted" TextWrapping="Wrap" TextAlignment="Center" FontSize="12" />
-                </StackPanel>
-            </controls:AngularBorder>
-        </Grid>
-    </StackPanel>
+            <StackPanel Spacing="6">
+                <TextBlock Text="OWNER" Classes="eyebrow" />
+                <TextBlock Text="ANALYTICS" Classes="headline" FontSize="30" />
+            </StackPanel>
+
+            <!-- Launcher-level stats -->
+            <Grid ColumnDefinitions="Auto,20,Auto" HorizontalAlignment="Left">
+                <Grid Grid.Column="0">
+                    <controls:HudCorners Brush="{StaticResource AccentCyanBrush}" BracketLength="14" Margin="-8" />
+                    <controls:AngularBorder Background="{StaticResource PanelBrush}"
+                                             BorderBrush="{StaticResource BorderSubtleBrush}"
+                                             BorderThickness="1"
+                                             CornerCut="14"
+                                             Padding="32,24"
+                                             Width="330">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="LAUNCHER OPENS" Classes="eyebrow" FontSize="10" />
+                            <TextBlock Text="{Binding LauncherOpens}" Classes="stat" FontSize="38" />
+                            <TextBlock Text="Distinct accounts that have ever opened the launcher — counted once, the first time, all-time."
+                                       Classes="faint" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </controls:AngularBorder>
+                </Grid>
+
+                <Grid Grid.Column="2">
+                    <controls:HudCorners Brush="{StaticResource BorderDimBrush}" BracketLength="14" Margin="-8" />
+                    <controls:AngularBorder Background="{StaticResource PanelBrush}"
+                                             BorderBrush="{StaticResource BorderSubtleBrush}"
+                                             BorderThickness="1"
+                                             CornerCut="14"
+                                             Padding="32,24"
+                                             Width="330">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="REGISTERED ACCOUNTS" Classes="eyebrow" FontSize="10" />
+                            <TextBlock Text="{Binding RegisteredAccounts}" Classes="stat" FontSize="38" />
+                            <TextBlock Text="Accounts that exist today. Can be lower than Launcher Opens if an account was later deleted."
+                                       Classes="faint" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </controls:AngularBorder>
+                </Grid>
+            </Grid>
+
+            <TextBlock Classes="faint" TextWrapping="Wrap" MaxWidth="700">
+                Launcher install/download counts aren't tracked here — the landing page's download
+                button links straight to GitHub Releases, so those requests never reach this server.
+            </TextBlock>
+
+            <Border Classes="divider" />
+
+            <!-- Per-game breakdown -->
+            <StackPanel Spacing="12">
+                <TextBlock Text="PER-GAME PERFORMANCE" Classes="eyebrow" />
+
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" />
+                <TextBlock Text="{Binding ErrorMessage}" Classes="error" TextWrapping="Wrap"
+                           IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <TextBlock Text="NOTHING PUBLISHED YET" Classes="eyebrow"
+                           IsVisible="{Binding !HasAnyGames}" Margin="0,20" />
+
+                <ItemsControl ItemsSource="{Binding Games}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:GameAnalyticsItemViewModel">
+                            <controls:AngularBorder Background="{StaticResource PanelAltBrush}"
+                                                     BorderBrush="{StaticResource BorderSubtleBrush}"
+                                                     BorderThickness="1"
+                                                     CornerCut="10"
+                                                     Padding="18,14"
+                                                     Margin="0,0,0,8">
+                                <Grid ColumnDefinitions="48,16,*,Auto,Auto,Auto,Auto,Auto,Auto">
+                                    <Border Grid.Column="0" Width="48" Height="48" ClipToBounds="True"
+                                            Background="{StaticResource PanelBrush}" CornerRadius="4">
+                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                               IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                    </Border>
+
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock Text="{Binding Game.Title}" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding PublishedDisplay}" Classes="mono muted" FontSize="10" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="18,0" Spacing="2">
+                                        <TextBlock Text="{Binding Game.Downloads}" Classes="stat" FontSize="16" HorizontalAlignment="Center" />
+                                        <TextBlock Text="DOWNLOADS" Classes="mono muted" FontSize="9" HorizontalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="18,0" Spacing="2">
+                                        <TextBlock Text="{Binding Game.Views}" Classes="stat" FontSize="16" HorizontalAlignment="Center" />
+                                        <TextBlock Text="VIEWS" Classes="mono muted" FontSize="9" HorizontalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="5" VerticalAlignment="Center" Margin="18,0" Spacing="2">
+                                        <TextBlock Text="{Binding Game.Likes}" Classes="stat" FontSize="16" HorizontalAlignment="Center" />
+                                        <TextBlock Text="LIKES" Classes="mono muted" FontSize="9" HorizontalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="6" VerticalAlignment="Center" Margin="18,0" Spacing="2">
+                                        <TextBlock Text="{Binding Game.Dislikes}" Classes="stat" FontSize="16" HorizontalAlignment="Center" />
+                                        <TextBlock Text="DISLIKES" Classes="mono muted" FontSize="9" HorizontalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="7" VerticalAlignment="Center" Margin="18,0" Spacing="2">
+                                        <TextBlock Text="{Binding Game.CommentCount}" Classes="stat" FontSize="16" HorizontalAlignment="Center" />
+                                        <TextBlock Text="COMMENTS" Classes="mono muted" FontSize="9" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Grid>
+                            </controls:AngularBorder>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AGC.Launcher.ViewModels"
              xmlns:controls="using:AGC.Launcher.Controls"
+             xmlns:dtos="using:AGC.Shared.Dtos"
              xmlns:sys="using:System"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -126,6 +127,72 @@
                     </controls:AngularBorder>
                 </Grid>
             </Grid>
+
+            <Border Classes="divider" />
+
+            <!-- Likes / dislikes -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Command="{Binding LikeCommand}" Padding="16,9"
+                        Classes.cta="{Binding IsLiked}" Classes.ghost="{Binding !IsLiked}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="&#9650; LIKE" FontSize="11" />
+                        <TextBlock Text="{Binding Likes}" Classes="mono" FontSize="11" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding DislikeCommand}" Padding="16,9"
+                        Classes.cta="{Binding IsDisliked}" Classes.ghost="{Binding !IsDisliked}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="&#9660; DISLIKE" FontSize="11" />
+                        <TextBlock Text="{Binding Dislikes}" Classes="mono" FontSize="11" />
+                    </StackPanel>
+                </Button>
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsSocialLoading}"
+                             Width="80" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <TextBlock Text="{Binding SocialErrorMessage}" Classes="error" TextWrapping="Wrap"
+                       IsVisible="{Binding SocialErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <Border Classes="divider" />
+
+            <!-- Comments -->
+            <StackPanel Spacing="{StaticResource SpaceMd}">
+                <TextBlock Text="COMMENTS" Classes="eyebrow" FontSize="10" />
+
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <TextBox Grid.Column="0" Text="{Binding NewCommentText}"
+                             PlaceholderText="Say something about this game..."
+                             AcceptsReturn="False" />
+                    <Button Grid.Column="1" Content="POST" Command="{Binding PostCommentCommand}"
+                            Classes="cta" Padding="18,0" />
+                </Grid>
+
+                <TextBlock Text="No comments yet — be the first." Classes="muted" FontSize="12"
+                           IsVisible="{Binding !Comments.Count}" />
+
+                <ItemsControl ItemsSource="{Binding Comments}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:GameCommentDto">
+                            <controls:AngularBorder Background="{StaticResource PanelAltBrush}"
+                                                     BorderBrush="{StaticResource BorderSubtleBrush}"
+                                                     BorderThickness="1"
+                                                     CornerCut="8"
+                                                     Padding="18,14"
+                                                     Margin="0,0,0,8">
+                                <StackPanel Spacing="4">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="{Binding Username}" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" />
+                                        <TextBlock Grid.Column="1" Text="{Binding CreatedAt, StringFormat='{}{0:MMM d, yyyy h:mm tt} UTC'}"
+                                                   Classes="mono muted" FontSize="10" />
+                                    </Grid>
+                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="12" />
+                                </StackPanel>
+                            </controls:AngularBorder>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
 
         </StackPanel>
     </ScrollViewer>

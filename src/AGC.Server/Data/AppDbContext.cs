@@ -17,6 +17,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<Payout> Payouts => Set<Payout>();
 
+    public DbSet<GameVote> GameVotes => Set<GameVote>();
+
+    public DbSet<GameComment> GameComments => Set<GameComment>();
+
+    public DbSet<GameEngagementEvent> GameEngagementEvents => Set<GameEngagementEvent>();
+
+    public DbSet<LauncherOpenEvent> LauncherOpenEvents => Set<LauncherOpenEvent>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>(entity =>
@@ -50,6 +58,26 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         {
             entity.Property(p => p.Amount).HasColumnType("decimal(12,2)");
             entity.HasIndex(p => p.StripePayoutId).IsUnique();
+        });
+
+        modelBuilder.Entity<GameVote>(entity =>
+        {
+            entity.HasIndex(v => new { v.GameId, v.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<GameComment>(entity =>
+        {
+            entity.HasIndex(c => c.GameId);
+        });
+
+        modelBuilder.Entity<GameEngagementEvent>(entity =>
+        {
+            entity.HasIndex(e => new { e.GameId, e.Kind });
+        });
+
+        modelBuilder.Entity<LauncherOpenEvent>(entity =>
+        {
+            entity.HasIndex(e => e.UserId).IsUnique();
         });
 
         // Every DateTime/DateTime? in this model is a Kind=Utc value (DateTime.UtcNow).

@@ -30,6 +30,63 @@ public sealed class OwnerController(
     private static readonly TimeSpan PublishMaintenanceWindow = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan DeleteMaintenanceWindow = TimeSpan.FromMinutes(2);
 
+    /// <summary>
+    /// Real per-game and launcher-level stats for the owner-only Analytics tab. Games
+    /// are filtered to Live, matching GetGames' existing convention.
+    /// </summary>
+    [HttpGet("analytics")]
+    public async Task<ActionResult<AnalyticsOverviewDto>> GetAnalytics(CancellationToken ct)
+    {
+        var games = await db.Games
+            .Where(g => g.Status == GameStatus.Live)
+            .OrderByDescending(g => g.PublishedAt)
+            .ToListAsync(ct);
+
+        var downloadCounts = await db.GameEngagementEvents
+            .Where(e => e.Kind == GameEngagementKind.Download)
+            .GroupBy(e => e.GameId)
+            .Select(g => new { GameId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.GameId, x => x.Count, ct);
+
+        var viewCounts = await db.GameEngagementEvents
+            .Where(e => e.Kind == GameEngagementKind.View)
+            .GroupBy(e => e.GameId)
+            .Select(g => new { GameId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.GameId, x => x.Count, ct);
+
+        var likeCounts = await db.GameVotes
+            .Where(v => v.IsLike)
+            .GroupBy(v => v.GameId)
+            .Select(g => new { GameId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.GameId, x => x.Count, ct);
+
+        var dislikeCounts = await db.GameVotes
+            .Where(v => !v.IsLike)
+            .GroupBy(v => v.GameId)
+            .Select(g => new { GameId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.GameId, x => x.Count, ct);
+
+        var commentCounts = await db.GameComments
+            .GroupBy(c => c.GameId)
+            .Select(g => new { GameId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.GameId, x => x.Count, ct);
+
+        var gameStats = games.Select(g => new GameAnalyticsDto(
+            g.Id,
+            g.Title,
+            downloadCounts.GetValueOrDefault(g.Id),
+            viewCounts.GetValueOrDefault(g.Id),
+            likeCounts.GetValueOrDefault(g.Id),
+            dislikeCounts.GetValueOrDefault(g.Id),
+            commentCounts.GetValueOrDefault(g.Id),
+            g.PublishedAt)).ToList();
+
+        var launcherOpens = await db.LauncherOpenEvents.CountAsync(ct);
+        var registeredAccounts = await db.Users.CountAsync(ct);
+
+        return Ok(new AnalyticsOverviewDto(new LauncherAnalyticsDto(launcherOpens, registeredAccounts), gameStats));
+    }
+
     [HttpPost("games/suggest-price")]
     public ActionResult<SuggestPriceResponseDto> SuggestPrice(SuggestPriceRequestDto request)
         => Ok(new SuggestPriceResponseDto(PriceSuggestionService.SuggestPrice(request.BuildSizeBytes)));

@@ -19,6 +19,8 @@ public enum ShellTab
 
 public sealed partial class ShellViewModel : ViewModelBase
 {
+    private readonly GameSocialService _socialService;
+
     public ShellViewModel(
         UserDto user,
         IGameCatalogService catalogService,
@@ -27,14 +29,17 @@ public sealed partial class ShellViewModel : ViewModelBase
         OwnerPublishService publishService,
         OwnerBalanceService balanceService,
         OwnerGamesService gamesService,
+        OwnerAnalyticsService analyticsService,
+        GameSocialService socialService,
         IPreferencesStore preferencesStore)
     {
         CurrentUser = user;
+        _socialService = socialService;
         Library = new LibraryViewModel(catalogService, downloadService);
         Store = new StoreViewModel(catalogService, purchaseService);
         Store.GamePurchased += (_, game) => Library.AddGameIfMissing(game);
 
-        Analytics = new AnalyticsViewModel();
+        Analytics = new AnalyticsViewModel(analyticsService);
         Balance = new BalanceViewModel(balanceService);
         Publish = new PublishViewModel(publishService);
         Games = new OwnerGamesViewModel(gamesService);
@@ -104,6 +109,7 @@ public sealed partial class ShellViewModel : ViewModelBase
         {
             loads.Add(Balance.LoadAsync());
             loads.Add(Games.LoadAsync());
+            loads.Add(Analytics.LoadAsync());
         }
 
         await Task.WhenAll(loads);
@@ -112,7 +118,7 @@ public sealed partial class ShellViewModel : ViewModelBase
     private void OpenGameDetail(GameDto game, StoreGameItemViewModel? storeItem, LibraryGameItemViewModel? libraryItem)
     {
         DetailViewModel = new GameDetailViewModel(
-            game, storeItem, libraryItem,
+            game, storeItem, libraryItem, _socialService,
             onBack: () => DetailViewModel = null,
             onGoToLibrary: () =>
             {
@@ -140,6 +146,7 @@ public sealed partial class ShellViewModel : ViewModelBase
     {
         DetailViewModel = null;
         SelectedTab = ShellTab.Analytics;
+        _ = Analytics.LoadAsync(); // refresh — new activity may have landed since the shell loaded
     }
 
     [RelayCommand]

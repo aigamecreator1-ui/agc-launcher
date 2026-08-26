@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using AGC.Launcher.Core.Services.Http;
 using AGC.Shared.Dtos;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace AGC.Launcher.ViewModels;
@@ -15,6 +17,7 @@ namespace AGC.Launcher.ViewModels;
 /// </summary>
 public sealed partial class GameDetailViewModel : ViewModelBase
 {
+    private readonly GameSocialService _socialService;
     private readonly Action _onBack;
     private readonly Action _onGoToLibrary;
 
@@ -22,12 +25,14 @@ public sealed partial class GameDetailViewModel : ViewModelBase
         GameDto game,
         StoreGameItemViewModel? storeItem,
         LibraryGameItemViewModel? libraryItem,
+        GameSocialService socialService,
         Action onBack,
         Action onGoToLibrary)
     {
         Game = game;
         StoreItem = storeItem;
         LibraryItem = libraryItem;
+        _socialService = socialService;
         _onBack = onBack;
         _onGoToLibrary = onGoToLibrary;
 
@@ -43,6 +48,8 @@ public sealed partial class GameDetailViewModel : ViewModelBase
         {
             libraryItem.PropertyChanged += OnLibraryItemPropertyChanged;
         }
+
+        _ = LoadSocialAsync();
     }
 
     public GameDto Game { get; }
@@ -72,11 +79,116 @@ public sealed partial class GameDetailViewModel : ViewModelBase
     /// <summary>Owned, but opened from the Store — nudge the player to the Library to install/play.</summary>
     public bool ShowGoToLibraryPrompt => IsOwned && LibraryItem is null;
 
+    public ObservableCollection<GameCommentDto> Comments { get; } = [];
+
+    [ObservableProperty]
+    public partial int Likes { get; set; }
+
+    [ObservableProperty]
+    public partial int Dislikes { get; set; }
+
+    /// <summary>null = no vote, true = liked, false = disliked.</summary>
+    [ObservableProperty]
+    public partial bool? UserVote { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsSocialLoading { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsPostingComment { get; set; }
+
+    [ObservableProperty]
+    public partial string? SocialErrorMessage { get; set; }
+
+    [ObservableProperty]
+    public partial string NewCommentText { get; set; } = "";
+
+    public bool IsLiked => UserVote == true;
+
+    public bool IsDisliked => UserVote == false;
+
     [RelayCommand]
     private void Back() => _onBack();
 
     [RelayCommand]
     private void GoToLibrary() => _onGoToLibrary();
+
+    [RelayCommand]
+    private async Task LikeAsync() => await VoteAsync(true);
+
+    [RelayCommand]
+    private async Task DislikeAsync() => await VoteAsync(false);
+
+    private async Task VoteAsync(bool isLike)
+    {
+        SocialErrorMessage = null;
+        try
+        {
+            ApplySocial(await _socialService.VoteAsync(Game.Id, isLike));
+        }
+        catch (Exception ex)
+        {
+            SocialErrorMessage = ex.Message;
+        }
+    }
+
+    private bool CanPostComment() => !IsPostingComment && !string.IsNullOrWhiteSpace(NewCommentText);
+
+    [RelayCommand(CanExecute = nameof(CanPostComment))]
+    private async Task PostCommentAsync()
+    {
+        SocialErrorMessage = null;
+        IsPostingComment = true;
+        try
+        {
+            ApplySocial(await _socialService.PostCommentAsync(Game.Id, NewCommentText.Trim()));
+            NewCommentText = "";
+        }
+        catch (Exception ex)
+        {
+            SocialErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsPostingComment = false;
+        }
+    }
+
+    partial void OnNewCommentTextChanged(string value) => PostCommentCommand.NotifyCanExecuteChanged();
+
+    partial void OnIsPostingCommentChanged(bool value) => PostCommentCommand.NotifyCanExecuteChanged();
+
+    private async Task LoadSocialAsync()
+    {
+        IsSocialLoading = true;
+        try
+        {
+            ApplySocial(await _socialService.RecordViewAsync(Game.Id));
+        }
+        catch (Exception ex)
+        {
+            SocialErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsSocialLoading = false;
+        }
+    }
+
+    private void ApplySocial(GameSocialDto social)
+    {
+        Likes = social.Likes;
+        Dislikes = social.Dislikes;
+        UserVote = social.UserVote;
+        OnPropertyChanged(nameof(IsLiked));
+        OnPropertyChanged(nameof(IsDisliked));
+
+        Comments.Clear();
+        foreach (var comment in social.Comments)
+        {
+            Comments.Add(comment);
+        }
+    }
 
     private static IEnumerable<string> BuildChips(GameDto game)
     {

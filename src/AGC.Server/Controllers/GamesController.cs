@@ -103,6 +103,9 @@ public sealed class GamesController(AppDbContext db, GameFileStorage storage) : 
             return NotFound(new ApiErrorDto("The build file is missing on the server."));
         }
 
+        db.GameEngagementEvents.Add(new GameEngagementEvent { GameId = id, UserId = userId, Kind = GameEngagementKind.Download });
+        await db.SaveChangesAsync(ct);
+
         var (content, length, _) = file.Value;
         if (length is not null)
         {
@@ -113,6 +116,113 @@ public sealed class GamesController(AppDbContext db, GameFileStorage storage) : 
         }
 
         return File(content, "application/octet-stream", Path.GetFileName(game.BuildPath));
+    }
+
+    /// <summary>Records a detail-page view, then returns the current social snapshot.</summary>
+    [HttpPost("{id}/view")]
+    public async Task<ActionResult<GameSocialDto>> RecordView(string id, CancellationToken ct)
+    {
+        var userId = User.RequireUserId();
+        var exists = await db.Games.AnyAsync(g => g.Id == id, ct);
+        if (!exists)
+        {
+            return NotFound(new ApiErrorDto("Game not found."));
+        }
+
+        db.GameEngagementEvents.Add(new GameEngagementEvent { GameId = id, UserId = userId, Kind = GameEngagementKind.View });
+        await db.SaveChangesAsync(ct);
+
+        return Ok(await BuildSocialDtoAsync(id, userId, ct));
+    }
+
+    /// <summary>Current likes/dislikes/vote/comments — no recording, used to refresh after voting or commenting.</summary>
+    [HttpGet("{id}/social")]
+    public async Task<ActionResult<GameSocialDto>> GetSocial(string id, CancellationToken ct)
+    {
+        var userId = User.RequireUserId();
+        var exists = await db.Games.AnyAsync(g => g.Id == id, ct);
+        if (!exists)
+        {
+            return NotFound(new ApiErrorDto("Game not found."));
+        }
+
+        return Ok(await BuildSocialDtoAsync(id, userId, ct));
+    }
+
+    /// <summary>
+    /// Toggle: no existing vote creates one, casting the same vote again removes it,
+    /// casting the opposite vote flips it — a player can only ever hold one of
+    /// like/dislike/no-vote per game, enforced by the unique (GameId, UserId) index.
+    /// </summary>
+    [HttpPost("{id}/vote")]
+    public async Task<ActionResult<GameSocialDto>> Vote(string id, VoteRequestDto request, CancellationToken ct)
+    {
+        var userId = User.RequireUserId();
+        var exists = await db.Games.AnyAsync(g => g.Id == id, ct);
+        if (!exists)
+        {
+            return NotFound(new ApiErrorDto("Game not found."));
+        }
+
+        var existingVote = await db.GameVotes.SingleOrDefaultAsync(v => v.GameId == id && v.UserId == userId, ct);
+        if (existingVote is null)
+        {
+            db.GameVotes.Add(new GameVote { GameId = id, UserId = userId, IsLike = request.IsLike });
+        }
+        else if (existingVote.IsLike == request.IsLike)
+        {
+            db.GameVotes.Remove(existingVote);
+        }
+        else
+        {
+            existingVote.IsLike = request.IsLike;
+        }
+
+        await db.SaveChangesAsync(ct);
+        return Ok(await BuildSocialDtoAsync(id, userId, ct));
+    }
+
+    [HttpPost("{id}/comments")]
+    public async Task<ActionResult<GameSocialDto>> PostComment(string id, PostCommentRequestDto request, CancellationToken ct)
+    {
+        var userId = User.RequireUserId();
+        var exists = await db.Games.AnyAsync(g => g.Id == id, ct);
+        if (!exists)
+        {
+            return NotFound(new ApiErrorDto("Game not found."));
+        }
+
+        var text = request.Text.Trim();
+        if (string.IsNullOrEmpty(text))
+        {
+            return BadRequest(new ApiErrorDto("Comment can't be empty."));
+        }
+
+        if (text.Length > 2000)
+        {
+            return BadRequest(new ApiErrorDto("Comment is too long (2000 characters max)."));
+        }
+
+        db.GameComments.Add(new GameComment { GameId = id, UserId = userId, Text = text });
+        await db.SaveChangesAsync(ct);
+
+        return Ok(await BuildSocialDtoAsync(id, userId, ct));
+    }
+
+    private async Task<GameSocialDto> BuildSocialDtoAsync(string gameId, string userId, CancellationToken ct)
+    {
+        var votes = await db.GameVotes.Where(v => v.GameId == gameId).ToListAsync(ct);
+        var likes = votes.Count(v => v.IsLike);
+        var dislikes = votes.Count(v => !v.IsLike);
+        var userVote = votes.FirstOrDefault(v => v.UserId == userId)?.IsLike;
+
+        var comments = await db.GameComments
+            .Where(c => c.GameId == gameId)
+            .OrderByDescending(c => c.CreatedAt)
+            .Join(db.Users, c => c.UserId, u => u.Id, (c, u) => new GameCommentDto(c.Id, u.Username, c.Text, c.CreatedAt))
+            .ToListAsync(ct);
+
+        return new GameSocialDto(likes, dislikes, userVote, comments);
     }
 
     [HttpGet("{id}/thumbnail")]

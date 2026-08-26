@@ -22,6 +22,9 @@ public sealed partial class AppViewModel : ViewModelBase
     private readonly OwnerPublishService _publishService;
     private readonly OwnerBalanceService _balanceService;
     private readonly OwnerGamesService _gamesService;
+    private readonly OwnerAnalyticsService _analyticsService;
+    private readonly GameSocialService _socialService;
+    private readonly LauncherAnalyticsService _launcherAnalyticsService;
     private readonly ISessionStore _sessionStore;
     private readonly MaintenanceClient _maintenanceClient;
     private readonly IPreferencesStore _preferencesStore;
@@ -34,6 +37,9 @@ public sealed partial class AppViewModel : ViewModelBase
         OwnerPublishService publishService,
         OwnerBalanceService balanceService,
         OwnerGamesService gamesService,
+        OwnerAnalyticsService analyticsService,
+        GameSocialService socialService,
+        LauncherAnalyticsService launcherAnalyticsService,
         ISessionStore sessionStore,
         MaintenanceClient maintenanceClient,
         IPreferencesStore preferencesStore)
@@ -45,6 +51,9 @@ public sealed partial class AppViewModel : ViewModelBase
         _publishService = publishService;
         _balanceService = balanceService;
         _gamesService = gamesService;
+        _analyticsService = analyticsService;
+        _socialService = socialService;
+        _launcherAnalyticsService = launcherAnalyticsService;
         _sessionStore = sessionStore;
         _maintenanceClient = maintenanceClient;
         _preferencesStore = preferencesStore;
@@ -116,10 +125,25 @@ public sealed partial class AppViewModel : ViewModelBase
 
     private ShellViewModel CreateShellViewModel(UserDto user)
     {
-        var shell = new ShellViewModel(user, _catalogService, _purchaseService, _downloadService, _publishService, _balanceService, _gamesService, _preferencesStore);
+        var shell = new ShellViewModel(
+            user, _catalogService, _purchaseService, _downloadService, _publishService,
+            _balanceService, _gamesService, _analyticsService, _socialService, _preferencesStore);
         shell.SignedOut += OnSignedOut;
         _ = InitializeShellSafelyAsync(shell);
+        _ = RecordLauncherOpenSafelyAsync();
         return shell;
+    }
+
+    private async Task RecordLauncherOpenSafelyAsync()
+    {
+        try
+        {
+            await _launcherAnalyticsService.RecordOpenAsync();
+        }
+        catch
+        {
+            // Best-effort — a failed analytics ping shouldn't affect the user's session.
+        }
     }
 
     private static async Task InitializeShellSafelyAsync(ShellViewModel shell)

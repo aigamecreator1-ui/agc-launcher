@@ -34,6 +34,9 @@ public partial class App : Application
             var publishService = new OwnerPublishService(httpClient, sessionStore);
             var balanceService = new OwnerBalanceService(apiClient);
             var gamesService = new OwnerGamesService(apiClient);
+            var analyticsService = new OwnerAnalyticsService(apiClient);
+            var socialService = new GameSocialService(apiClient);
+            var launcherAnalyticsService = new LauncherAnalyticsService(apiClient);
             var downloadService = new GameInstallService(httpClient, sessionStore, new FileGameInstallStore());
             var maintenanceClient = new MaintenanceClient(apiClient, sessionStore);
             var preferencesStore = new FilePreferencesStore();
@@ -42,7 +45,8 @@ public partial class App : Application
             {
                 DataContext = new AppViewModel(
                     authService, catalogService, purchaseService, downloadService,
-                    publishService, balanceService, gamesService, sessionStore, maintenanceClient, preferencesStore),
+                    publishService, balanceService, gamesService, analyticsService, socialService,
+                    launcherAnalyticsService, sessionStore, maintenanceClient, preferencesStore),
             };
         }
 
