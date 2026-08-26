@@ -6,7 +6,7 @@
 ; see scripts\publish-windows.ps1 for the exact `dotnet publish` command.
 
 #define MyAppName "AGC Launcher"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "AGC"
 #define MyAppExeName "AGC.Launcher.exe"
 #define MyPublishDir "..\publish\win-x64"
