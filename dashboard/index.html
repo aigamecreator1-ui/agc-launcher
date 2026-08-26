@@ -332,6 +332,8 @@
       </div>
     </div>
 
+    <div id="storage-warning" class="error-box hidden"></div>
+
     <div class="stat-grid">
       <div class="stat-card">
         <div class="label">Launcher Opens</div>
@@ -389,9 +391,29 @@
     refreshedAt: document.getElementById("refreshed-at"),
     refreshBtn: document.getElementById("refresh-btn"),
     logoutBtn: document.getElementById("logout-btn"),
+    storageWarning: document.getElementById("storage-warning"),
   };
 
   var pendingEmail = "";
+
+  // The source of truth for the current session is this in-memory variable, not
+  // localStorage directly — localStorage is only ever used to persist it across a
+  // reload/relaunch. That split is what lets a save failure (see saveToken below)
+  // be reported honestly without also breaking the session that's already live.
+  var currentToken = null;
+
+  /// Writes the token, then reads it straight back to confirm it actually landed —
+  /// Safari's Private Browsing mode sets the write quota to 0, so setItem throws
+  /// synchronously there; some storage-blocking extensions instead let setItem
+  /// succeed but silently no-op it, which only the read-back catches.
+  function saveToken(token) {
+    try {
+      localStorage.setItem(TOKEN_KEY, token);
+      return localStorage.getItem(TOKEN_KEY) === token;
+    } catch (err) {
+      return false;
+    }
+  }
 
   function showError(target, message) {
     target.textContent = message;
@@ -474,18 +496,35 @@
     if (!code) return;
 
     setLoginBusy(true);
+
+    var result;
     try {
-      var result = await apiPost("api/auth/owner/verify", { email: pendingEmail, code: code });
-      localStorage.setItem(TOKEN_KEY, result.token);
-      enterDashboard();
+      result = await apiPost("api/auth/owner/verify", { email: pendingEmail, code: code });
     } catch (err) {
       // A wrong owner code is deliberately indistinguishable from "not the owner" —
-      // bounce all the way back to the email step, same as the desktop app.
+      // bounce all the way back to the email step, same as the desktop app. This
+      // catch is scoped to the network call only, so a storage failure below can
+      // never land here and get mislabeled as a bad code.
       backToEmailStep();
       showError(el.loginError, "No owner account with that email.");
-    } finally {
       setLoginBusy(false);
+      return;
     }
+
+    setLoginBusy(false);
+
+    // Auth succeeded regardless of what happens next — currentToken drives this
+    // session whether or not the browser will let it persist.
+    currentToken = result.token;
+
+    if (!saveToken(result.token)) {
+      el.storageWarning.textContent =
+        "Signed in, but this browser wouldn't save your session (Private Browsing or a " +
+        "storage-blocking setting?). You'll need to sign in again next time you open this page.";
+      el.storageWarning.classList.remove("hidden");
+    }
+
+    enterDashboard();
   });
 
   el.backToEmail.addEventListener("click", function () {
@@ -514,27 +553,28 @@
   }
 
   function logout() {
-    localStorage.removeItem(TOKEN_KEY);
+    currentToken = null;
+    try { localStorage.removeItem(TOKEN_KEY); } catch (err) { /* nothing to clean up if it never saved */ }
     el.dashboardScreen.classList.add("hidden");
     el.loginScreen.classList.remove("hidden");
     backToEmailStep();
     el.emailInput.value = "";
     hideError(el.loginError);
+    hideError(el.storageWarning);
   }
 
   el.logoutBtn.addEventListener("click", logout);
   el.refreshBtn.addEventListener("click", loadAnalytics);
 
   async function loadAnalytics() {
-    var token = localStorage.getItem(TOKEN_KEY);
-    if (!token) { logout(); return; }
+    if (!currentToken) { logout(); return; }
 
     hideError(el.dashboardError);
     el.dashboardBusy.classList.remove("hidden");
     el.refreshBtn.disabled = true;
 
     try {
-      var overview = await apiGet("api/owner/analytics", token);
+      var overview = await apiGet("api/owner/analytics", currentToken);
       renderOverview(overview);
       el.refreshedAt.textContent = "Updated " + new Date().toLocaleTimeString();
       el.refreshedAt.classList.remove("hidden");
@@ -605,8 +645,11 @@
 
   // ---- Boot ----
 
-  var savedToken = localStorage.getItem(TOKEN_KEY);
+  var savedToken = null;
+  try { savedToken = localStorage.getItem(TOKEN_KEY); } catch (err) { /* treat as no saved session */ }
+
   if (savedToken) {
+    currentToken = savedToken;
     enterDashboard();
   }
 })();
