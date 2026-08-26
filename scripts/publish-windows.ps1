@@ -21,9 +21,15 @@ Write-Host "Published to $publishDir" -ForegroundColor Green
 
 $iscc = Get-Command "ISCC.exe" -ErrorAction SilentlyContinue
 if (-not $iscc) {
-    $defaultIscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-    if (Test-Path $defaultIscc) {
-        $iscc = $defaultIscc
+    $defaultIsccPaths = @(
+        "C:\Program Files (x86)\Inno Setup 7\ISCC.exe",
+        "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+    )
+    foreach ($path in $defaultIsccPaths) {
+        if (Test-Path $path) {
+            $iscc = $path
+            break
+        }
     }
 }
 
