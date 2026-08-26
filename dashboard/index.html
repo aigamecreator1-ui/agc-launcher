@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AGC Analytics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070a">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #05070a;
+    --panel: #0d1117;
+    --panel-alt: #10151d;
+    --border: #1c2530;
+    --border-dim: #141b24;
+    --text: #e8eef3;
+    --muted: #8592a0;
+    --faint: #5c6773;
+    --accent: #2be0ff;
+    --accent-dim: rgba(43, 224, 255, 0.35);
+    --danger: #ff5c6c;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: max(20px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+  }
+
+  .screen { max-width: 480px; margin: 0 auto; }
+  .hidden { display: none !important; }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  h1 {
+    font-size: 28px;
+    margin: 4px 0 0;
+    letter-spacing: 0.5px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* -- Login screen -- */
+  #login-screen { padding-top: 14vh; }
+
+  .login-header { text-align: center; margin-bottom: 36px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 18px 0 8px;
+  }
+
+  input[type=email], input[type=password], input[type=text] {
+    width: 100%;
+    font-size: 17px;
+    padding: 14px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    outline: none;
+  }
+
+  input:focus { border-color: var(--accent); }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    margin-top: 24px;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    background: var(--accent);
+    color: #00232b;
+  }
+
+  .btn-primary:active { background: #23c3e0; }
+
+  .btn-primary:disabled { opacity: 0.5; }
+
+  .btn-ghost {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-ghost:active { border-color: var(--accent); color: var(--text); }
+
+  .error-box {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 92, 108, 0.35);
+    background: rgba(255, 92, 108, 0.08);
+    border-radius: 10px;
+    color: var(--danger);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .spinner-text {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 16px;
+  }
+
+  /* -- Dashboard screen -- */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+
+  .top-bar-actions { display: flex; gap: 8px; }
+
+  .icon-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    padding: 10px 14px;
+    border-radius: 8px;
+  }
+
+  .icon-btn:active { color: var(--text); border-color: var(--accent); }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 16px;
+  }
+
+  .stat-card .label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .stat-card .value {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-card .hint {
+    font-size: 11px;
+    color: var(--faint);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .disclaimer {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--faint);
+    line-height: 1.5;
+    padding: 0 2px;
+  }
+
+  .section-title {
+    margin-top: 30px;
+    margin-bottom: 12px;
+  }
+
+  .game-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .game-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .game-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: var(--panel-alt);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .game-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .game-date {
+    font-size: 11px;
+    color: var(--faint);
+    margin-top: 2px;
+  }
+
+  .game-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .game-stat {
+    background: var(--panel-alt);
+    border-radius: 8px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+
+  .game-stat .n {
+    font-size: 19px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .game-stat .l {
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    color: var(--faint);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--faint);
+    font-size: 13px;
+    padding: 40px 0;
+  }
+
+  .refreshed-at {
+    text-align: center;
+    font-size: 11px;
+    color: var(--faint);
+    margin-top: 26px;
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- LOGIN -->
+  <section id="login-screen" class="screen">
+    <div class="login-header">
+      <div class="eyebrow">AGC LAUNCHER</div>
+      <h1>Owner Analytics</h1>
+    </div>
+
+    <form id="email-form">
+      <label for="email-input">Email</label>
+      <input id="email-input" type="email" autocomplete="username" placeholder="you@example.com" required>
+      <button type="submit" class="btn-primary" id="email-submit">CONTINUE</button>
+    </form>
+
+    <form id="code-form" class="hidden">
+      <label for="code-input">Owner Security Code</label>
+      <input id="code-input" type="password" inputmode="numeric" autocomplete="off" placeholder="000000" required>
+      <button type="submit" class="btn-primary" id="code-submit">SIGN IN</button>
+      <button type="button" class="btn-ghost" id="back-to-email">BACK</button>
+    </form>
+
+    <div id="login-error" class="error-box hidden"></div>
+    <div id="login-busy" class="spinner-text hidden">Working…</div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard-screen" class="screen hidden">
+    <div class="top-bar">
+      <div>
+        <div class="eyebrow">OWNER</div>
+        <h1 style="font-size:22px;">Analytics</h1>
+      </div>
+      <div class="top-bar-actions">
+        <button class="icon-btn" id="refresh-btn">REFRESH</button>
+        <button class="icon-btn" id="logout-btn">LOG OUT</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">Launcher Opens</div>
+        <div class="value" id="stat-opens">—</div>
+        <div class="hint">Distinct accounts that have ever opened the launcher, counted once, all-time.</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Registered Accounts</div>
+        <div class="value" id="stat-accounts">—</div>
+        <div class="hint">Accounts that exist today.</div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      Launcher install/download counts aren't tracked — the landing page's download button
+      links straight to GitHub Releases, so those requests never reach the server.
+    </div>
+
+    <div class="section-title eyebrow">Per-Game Performance</div>
+    <div id="games-list"></div>
+    <div id="games-empty" class="empty-state hidden">Nothing published yet.</div>
+
+    <div id="dashboard-error" class="error-box hidden"></div>
+    <div id="dashboard-busy" class="spinner-text hidden">Loading…</div>
+    <div id="refreshed-at" class="refreshed-at hidden"></div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var API_BASE = "https://agc-launcher-server.onrender.com/";
+  var TOKEN_KEY = "agc_owner_token";
+
+  var el = {
+    loginScreen: document.getElementById("login-screen"),
+    dashboardScreen: document.getElementById("dashboard-screen"),
+    emailForm: document.getElementById("email-form"),
+    codeForm: document.getElementById("code-form"),
+    emailInput: document.getElementById("email-input"),
+    codeInput: document.getElementById("code-input"),
+    emailSubmit: document.getElementById("email-submit"),
+    codeSubmit: document.getElementById("code-submit"),
+    backToEmail: document.getElementById("back-to-email"),
+    loginError: document.getElementById("login-error"),
+    loginBusy: document.getElementById("login-busy"),
+    statOpens: document.getElementById("stat-opens"),
+    statAccounts: document.getElementById("stat-accounts"),
+    gamesList: document.getElementById("games-list"),
+    gamesEmpty: document.getElementById("games-empty"),
+    dashboardError: document.getElementById("dashboard-error"),
+    dashboardBusy: document.getElementById("dashboard-busy"),
+    refreshedAt: document.getElementById("refreshed-at"),
+    refreshBtn: document.getElementById("refresh-btn"),
+    logoutBtn: document.getElementById("logout-btn"),
+  };
+
+  var pendingEmail = "";
+
+  function showError(target, message) {
+    target.textContent = message;
+    target.classList.remove("hidden");
+  }
+
+  function hideError(target) {
+    target.classList.add("hidden");
+    target.textContent = "";
+  }
+
+  async function apiPost(path, body, token) {
+    var headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = "Bearer " + token;
+
+    var response = await fetch(API_BASE + path, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(body || {}),
+    });
+
+    return parseResponse(response);
+  }
+
+  async function apiGet(path, token) {
+    var response = await fetch(API_BASE + path, {
+      headers: { "Authorization": "Bearer " + token },
+    });
+    return parseResponse(response);
+  }
+
+  async function parseResponse(response) {
+    var data = null;
+    try { data = await response.json(); } catch (e) { /* empty body */ }
+
+    if (!response.ok) {
+      var message = (data && data.message) || ("Request failed (" + response.status + ").");
+      var error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    return data;
+  }
+
+  // ---- Login flow (mirrors the desktop app: request -> owner code required -> verify) ----
+
+  el.emailForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    hideError(el.loginError);
+
+    var email = el.emailInput.value.trim();
+    if (!email) return;
+
+    setLoginBusy(true);
+    try {
+      var result = await apiPost("api/auth/login/request", { email: email });
+      // LoginRequestStatus: 0 = EmailCodeSent, 1 = OwnerCodeRequired, 2 = AccountNotFound
+      if (result.status === 1) {
+        pendingEmail = email;
+        el.emailForm.classList.add("hidden");
+        el.codeForm.classList.remove("hidden");
+        el.codeInput.value = "";
+        el.codeInput.focus();
+      } else {
+        showError(el.loginError, "No owner account with that email.");
+      }
+    } catch (err) {
+      showError(el.loginError, err.message);
+    } finally {
+      setLoginBusy(false);
+    }
+  });
+
+  el.codeForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    hideError(el.loginError);
+
+    var code = el.codeInput.value.trim();
+    if (!code) return;
+
+    setLoginBusy(true);
+    try {
+      var result = await apiPost("api/auth/owner/verify", { email: pendingEmail, code: code });
+      localStorage.setItem(TOKEN_KEY, result.token);
+      enterDashboard();
+    } catch (err) {
+      // A wrong owner code is deliberately indistinguishable from "not the owner" —
+      // bounce all the way back to the email step, same as the desktop app.
+      backToEmailStep();
+      showError(el.loginError, "No owner account with that email.");
+    } finally {
+      setLoginBusy(false);
+    }
+  });
+
+  el.backToEmail.addEventListener("click", function () {
+    hideError(el.loginError);
+    backToEmailStep();
+  });
+
+  function backToEmailStep() {
+    el.codeForm.classList.add("hidden");
+    el.emailForm.classList.remove("hidden");
+    el.codeInput.value = "";
+  }
+
+  function setLoginBusy(busy) {
+    el.emailSubmit.disabled = busy;
+    el.codeSubmit.disabled = busy;
+    el.loginBusy.classList.toggle("hidden", !busy);
+  }
+
+  // ---- Dashboard ----
+
+  function enterDashboard() {
+    el.loginScreen.classList.add("hidden");
+    el.dashboardScreen.classList.remove("hidden");
+    loadAnalytics();
+  }
+
+  function logout() {
+    localStorage.removeItem(TOKEN_KEY);
+    el.dashboardScreen.classList.add("hidden");
+    el.loginScreen.classList.remove("hidden");
+    backToEmailStep();
+    el.emailInput.value = "";
+    hideError(el.loginError);
+  }
+
+  el.logoutBtn.addEventListener("click", logout);
+  el.refreshBtn.addEventListener("click", loadAnalytics);
+
+  async function loadAnalytics() {
+    var token = localStorage.getItem(TOKEN_KEY);
+    if (!token) { logout(); return; }
+
+    hideError(el.dashboardError);
+    el.dashboardBusy.classList.remove("hidden");
+    el.refreshBtn.disabled = true;
+
+    try {
+      var overview = await apiGet("api/owner/analytics", token);
+      renderOverview(overview);
+      el.refreshedAt.textContent = "Updated " + new Date().toLocaleTimeString();
+      el.refreshedAt.classList.remove("hidden");
+    } catch (err) {
+      if (err.status === 401) {
+        logout();
+        showError(el.loginError, "Your session expired — sign in again.");
+        return;
+      }
+      showError(el.dashboardError, err.message);
+    } finally {
+      el.dashboardBusy.classList.add("hidden");
+      el.refreshBtn.disabled = false;
+    }
+  }
+
+  function renderOverview(overview) {
+    el.statOpens.textContent = overview.launcher.launcherOpens;
+    el.statAccounts.textContent = overview.launcher.registeredAccounts;
+
+    el.gamesList.innerHTML = "";
+    var games = overview.games || [];
+
+    el.gamesEmpty.classList.toggle("hidden", games.length > 0);
+
+    games.forEach(function (game) {
+      el.gamesList.appendChild(renderGameCard(game));
+    });
+  }
+
+  function renderGameCard(game) {
+    var card = document.createElement("div");
+    card.className = "game-card";
+
+    var published = game.publishedAt
+      ? new Date(game.publishedAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
+      : "—";
+
+    card.innerHTML =
+      '<div class="game-head">' +
+        '<img class="game-thumb" src="' + API_BASE + 'api/games/' + encodeURIComponent(game.gameId) + '/thumbnail" ' +
+             'alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+        '<div>' +
+          '<div class="game-title">' + escapeHtml(game.title) + '</div>' +
+          '<div class="game-date">Published ' + published + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="game-stats">' +
+        gameStat(game.downloads, "Downloads") +
+        gameStat(game.views, "Views") +
+        gameStat(game.likes, "Likes") +
+        gameStat(game.dislikes, "Dislikes") +
+        gameStat(game.commentCount, "Comments") +
+      '</div>';
+
+    return card;
+  }
+
+  function gameStat(value, label) {
+    return '<div class="game-stat"><div class="n">' + value + '</div><div class="l">' + label + '</div></div>';
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ---- Boot ----
+
+  var savedToken = localStorage.getItem(TOKEN_KEY);
+  if (savedToken) {
+    enterDashboard();
+  }
+})();
+</script>
+
+</body>
+</html>

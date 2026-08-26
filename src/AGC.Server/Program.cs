@@ -98,6 +98,16 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Owner", policy => policy.RequireClaim(TokenService.IsOwnerClaimType, "true"));
 });
 
+// The mobile analytics dashboard is a static page on its own origin (Netlify) calling
+// this API via fetch(), not the desktop client (which isn't subject to CORS at all).
+// Every endpoint it touches already requires a real bearer token or the owner security
+// code, so a wide-open origin policy doesn't expose anything an unauthenticated request
+// couldn't already probe — it just stops the browser from blocking the response.
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -129,6 +139,7 @@ forwardedHeadersOptions.KnownIPNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
+app.UseCors();
 app.UseAuthentication();
 app.UseMiddleware<MaintenanceMiddleware>();
 app.UseAuthorization();
